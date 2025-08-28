@@ -60,7 +60,7 @@
                     <CollectionView ItemsSource="{Binding HorariosActuales}" 
                 MaximumHeightRequest="300">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:Horario">
                                 <Grid Padding="10,5" 
                   ColumnDefinitions="Auto,*,Auto,Auto" 
                   BackgroundColor="#F9F9F9" 
@@ -113,7 +113,7 @@
                     <!-- Aquí irían los controles para agregar horarios -->
                     <StackLayout BindableLayout.ItemsSource="{Binding NuevosHorarios}">
                         <BindableLayout.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="viewmodels:NuevoHorarioViewModel">
                                 <Frame BackgroundColor="#F0F0F0" Margin="0,5" Padding="15">
                                     <StackLayout>
                                         <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
