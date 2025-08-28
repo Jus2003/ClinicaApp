@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.CreateDoctorPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             x:DataType="viewmodels:CreateDoctorViewModel"
+             Title="Crear Médico">
+
+    <ScrollView Padding="20">
+        <StackLayout Spacing="20">
+
+            <Label Text="👨‍⚕️ Crear Nuevo Médico" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="#2E7D32" 
+                   HorizontalOptions="Center" />
+
+            <!-- Frame principal del formulario -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20">
+
+                <StackLayout Spacing="20">
+
+                    <!-- Información Personal -->
+                    <Label Text="📋 Información Personal" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Nombre *" TextColor="#666" FontSize="14" />
+                            <Entry Text="{Binding Doctor.Nombre}" 
+                                   Placeholder="Ingrese el nombre" 
+                                   BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+                        <StackLayout Grid.Column="1">
+                            <Label Text="Apellido *" TextColor="#666" FontSize="14" />
+                            <Entry Text="{Binding Doctor.Apellido}" 
+                                   Placeholder="Ingrese el apellido" 
+                                   BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+                    </Grid>
+
+                    <StackLayout>
+                        <Label Text="Cédula *" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Doctor.Cedula}" 
+                               Placeholder="1234567890" 
+                               Keyboard="Numeric" 
+                               MaxLength="10"
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Fecha de Nacimiento" TextColor="#666" FontSize="14" />
+                            <DatePicker Date="{Binding FechaNacimiento}" 
+                                        BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+                        <StackLayout Grid.Column="1">
+                            <Label Text="Género" TextColor="#666" FontSize="14" />
+                            <Picker ItemsSource="{Binding Generos}" 
+                                    SelectedItem="{Binding Doctor.Genero}" 
+                                    BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+                    </Grid>
+
+                    <StackLayout>
+                        <Label Text="Teléfono" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Doctor.Telefono}" 
+                               Placeholder="0987654321" 
+                               Keyboard="Telephone" 
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <StackLayout>
+                        <Label Text="Dirección" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Doctor.Direccion}" 
+                               Placeholder="Dirección completa" 
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <!-- Información de Acceso -->
+                    <BoxView HeightRequest="1" BackgroundColor="LightGray" Margin="0,10" />
+
+                    <Label Text="🔑 Información de Acceso" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <StackLayout>
+                        <Label Text="Nombre de Usuario *" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Doctor.Username}" 
+                               Placeholder="usuario.medico" 
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <StackLayout>
+                        <Label Text="Email *" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Doctor.Email}" 
+                               Placeholder="medico@clinica.com" 
+                               Keyboard="Email" 
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <!-- Información Laboral -->
+                    <BoxView HeightRequest="1" BackgroundColor="LightGray" Margin="0,10" />
+
+                    <Label Text="🏥 Información Laboral" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <StackLayout>
+                        <Label Text="Sucursal *" TextColor="#666" FontSize="14" />
+                        <Picker ItemsSource="{Binding Sucursales}" 
+                                ItemDisplayBinding="{Binding NombreSucursal}"
+                                SelectedItem="{Binding SelectedSucursal}" 
+                                BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <StackLayout>
+                        <Label Text="Especialidades *" TextColor="#666" FontSize="14" />
+                        <Label Text="(Seleccione una o más especialidades)" 
+                           TextColor="Gray" 
+                           FontSize="12" />
+
+                        <!-- Lista de especialidades con checkboxes - CORREGIDA -->
+                        <CollectionView ItemsSource="{Binding Especialidades}" 
+                    MaximumHeightRequest="200">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="viewmodels:EspecialidadSelectable">
+                                    <Grid Padding="10,5" ColumnDefinitions="Auto,*">
+                                        <CheckBox Grid.Column="0" 
+                              IsChecked="{Binding IsSelected}" 
+                              Color="#4CAF50" />
+                                        <Label Grid.Column="1" 
+                           Text="{Binding NombreEspecialidad}" 
+                           VerticalOptions="Center" 
+                           Margin="10,0,0,0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+
+                    <!-- Mensaje de error/éxito -->
+                    <Label Text="{Binding Message}" 
+                           TextColor="{Binding IsSuccess, Converter={StaticResource BoolToColorConverter}}"
+                           FontSize="14" 
+                           IsVisible="{Binding Message, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center" />
+
+                    <!-- Botones -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0">
+
+                        <Button Grid.Column="0"
+                                Text="CANCELAR" 
+                                BackgroundColor="Transparent" 
+                                TextColor="#666" 
+                                BorderColor="#666"
+                                BorderWidth="1"
+                                CornerRadius="25" 
+                                HeightRequest="50"
+                                Command="{Binding CancelCommand}" />
+
+                        <Button Grid.Column="1"
+                                Text="CREAR MÉDICO" 
+                                BackgroundColor="#4CAF50" 
+                                TextColor="White" 
+                                FontAttributes="Bold" 
+                                CornerRadius="25" 
+                                HeightRequest="50" 
+                                Command="{Binding CreateCommand}"
+                                IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}" />
+
+                    </Grid>
+
+                    <!-- Loading -->
+                    <StackLayout IsVisible="{Binding IsLoading}" 
+                                 HorizontalOptions="Center" 
+                                 Orientation="Horizontal" 
+                                 Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsLoading}" Color="#4CAF50" />
+                        <Label Text="Creando médico..." TextColor="Gray" />
+                    </StackLayout>
+
+                </StackLayout>
+            </Frame>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

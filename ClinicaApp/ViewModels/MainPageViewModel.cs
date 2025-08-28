@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ClinicaApp.Models;
 using ClinicaApp.Helpers;
+using ClinicaApp.Views;
 
 namespace ClinicaApp.ViewModels
 {
@@ -52,8 +53,20 @@ namespace ClinicaApp.ViewModels
         {
             if (submenu != null)
             {
-                await Shell.Current.DisplayAlert("Navegación",
-                    $"Ir a: {submenu.NombreSubmenu}\nURI: {submenu.UriSubmenu}", "OK");
+                // Verificar diferentes URIs de submenús
+                switch (submenu.UriSubmenu)
+                {
+                    case "admin/usuarios":
+                        await Shell.Current.GoToAsync("usermanagement");
+                        break;
+                    case "citas/disponibilidad":
+                        await Shell.Current.GoToAsync("doctorschedule");
+                        break;
+                    default:
+                        await Shell.Current.DisplayAlert("Navegación",
+                            $"Ir a: {submenu.NombreSubmenu}\nURI: {submenu.UriSubmenu}", "OK");
+                        break;
+                }
             }
         }
 

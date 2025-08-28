@@ -82,7 +82,15 @@ namespace ClinicaApp.ViewModels
 
                 if (response.Success)
                 {
-                    Message = "Se ha enviado un correo con las instrucciones para recuperar su contraseña";
+                    if (response.Data != null)
+                    {
+                        // Mostrar información de la contraseña temporal
+                        Message = $"{response.Message}\n\nUsuario: {response.Data.Usuario}\nContraseña temporal: {response.Data.PasswordTemporal}\n\n{response.Data.Nota}";
+                    }
+                    else
+                    {
+                        Message = response.Message;
+                    }
                     ShowSuccess = true;
                 }
                 else
@@ -95,6 +103,7 @@ namespace ClinicaApp.ViewModels
             {
                 Message = $"Error: {ex.Message}";
                 ShowSuccess = false;
+                System.Diagnostics.Debug.WriteLine($"Error en ForgotPassword: {ex}");
             }
             finally
             {

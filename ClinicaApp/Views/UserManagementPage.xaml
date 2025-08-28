@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.UserManagementPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Gestionar Usuarios">
+
+    <ScrollView Padding="20">
+        <StackLayout Spacing="30">
+
+            <Label Text="Gestionar Usuarios" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="#2E7D32" 
+                   HorizontalOptions="Center" />
+
+            <Label Text="Selecciona el tipo de usuario que deseas crear:" 
+                   FontSize="16" 
+                   TextColor="Gray" 
+                   HorizontalTextAlignment="Center" />
+
+            <!-- Botón para crear médico -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15">
+                <Button Text="👨‍⚕️ CREAR MÉDICO" 
+                        BackgroundColor="#4CAF50" 
+                        TextColor="White" 
+                        FontAttributes="Bold" 
+                        FontSize="18" 
+                        CornerRadius="10" 
+                        HeightRequest="60"
+                        Command="{Binding CreateDoctorCommand}" />
+            </Frame>
+
+            <!-- Botón para crear paciente -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15">
+                <Button Text="🏥 CREAR PACIENTE" 
+                        BackgroundColor="#2196F3" 
+                        TextColor="White" 
+                        FontAttributes="Bold" 
+                        FontSize="18" 
+                        CornerRadius="10" 
+                        HeightRequest="60"
+                        Command="{Binding CreatePatientCommand}" />
+            </Frame>
+
+            <!-- Botón para volver -->
+            <Button Text="VOLVER" 
+                    BackgroundColor="Transparent" 
+                    TextColor="#2E7D32" 
+                    FontSize="16"
+                    Command="{Binding BackCommand}" />
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

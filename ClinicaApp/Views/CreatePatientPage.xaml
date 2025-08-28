@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.CreatePatientPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             x:DataType="viewmodels:CreatePatientViewModel"
+             Title="Crear Paciente">
+
+    <ScrollView Padding="20">
+        <StackLayout Spacing="20">
+
+            <Label Text="🏥 Crear Nuevo Paciente" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="#2196F3" 
+                   HorizontalOptions="Center" />
+
+            <!-- Frame principal del formulario -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20">
+
+                <StackLayout Spacing="20">
+
+                    <!-- Información Personal -->
+                    <Label Text="📋 Información Personal" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#2196F3" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Nombre *" TextColor="#666" FontSize="14" />
+                            <Entry Text="{Binding Patient.Nombre}" 
+                                   Placeholder="Ingrese el nombre" 
+                                   BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+                        <StackLayout Grid.Column="1">
+                            <Label Text="Apellido *" TextColor="#666" FontSize="14" />
+                            <Entry Text="{Binding Patient.Apellido}" 
+                                   Placeholder="Ingrese el apellido" 
+                                   BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+                    </Grid>
+
+                    <StackLayout>
+                        <Label Text="Cédula *" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Patient.Cedula}" 
+                               Placeholder="1234567890" 
+                               Keyboard="Numeric" 
+                               MaxLength="10"
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Fecha de Nacimiento" TextColor="#666" FontSize="14" />
+                            <DatePicker Date="{Binding FechaNacimiento}" 
+                                        BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+                        <StackLayout Grid.Column="1">
+                            <Label Text="Género" TextColor="#666" FontSize="14" />
+                            <Picker ItemsSource="{Binding Generos}" 
+                                    SelectedItem="{Binding Patient.Genero}" 
+                                    BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+                    </Grid>
+
+                    <StackLayout>
+                        <Label Text="Teléfono" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Patient.Telefono}" 
+                               Placeholder="0987654321" 
+                               Keyboard="Telephone" 
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <StackLayout>
+                        <Label Text="Dirección" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Patient.Direccion}" 
+                               Placeholder="Dirección completa" 
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <!-- Información de Acceso -->
+                    <BoxView HeightRequest="1" BackgroundColor="LightGray" Margin="0,10" />
+
+                    <Label Text="🔑 Información de Acceso" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#2196F3" />
+
+                    <StackLayout>
+                        <Label Text="Nombre de Usuario *" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Patient.Username}" 
+                               Placeholder="usuario.paciente" 
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <StackLayout>
+                        <Label Text="Email *" TextColor="#666" FontSize="14" />
+                        <Entry Text="{Binding Patient.Email}" 
+                               Placeholder="paciente@email.com" 
+                               Keyboard="Email" 
+                               BackgroundColor="#F5F5F5" />
+                    </StackLayout>
+
+                    <!-- Mensaje de error/éxito -->
+                    <Label Text="{Binding Message}" 
+                           TextColor="{Binding IsSuccess, Converter={StaticResource BoolToColorConverter}}"
+                           FontSize="14" 
+                           IsVisible="{Binding Message, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center" />
+
+                    <!-- Botones -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0">
+
+                        <Button Grid.Column="0"
+                                Text="CANCELAR" 
+                                BackgroundColor="Transparent" 
+                                TextColor="#666" 
+                                BorderColor="#666"
+                                BorderWidth="1"
+                                CornerRadius="25" 
+                                HeightRequest="50"
+                                Command="{Binding CancelCommand}" />
+
+                        <Button Grid.Column="1"
+                                Text="CREAR PACIENTE" 
+                                BackgroundColor="#2196F3" 
+                                TextColor="White" 
+                                FontAttributes="Bold" 
+                                CornerRadius="25" 
+                                HeightRequest="50" 
+                                Command="{Binding CreateCommand}"
+                                IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}" />
+
+                    </Grid>
+
+                    <!-- Loading -->
+                    <StackLayout IsVisible="{Binding IsLoading}" 
+                                 HorizontalOptions="Center" 
+                                 Orientation="Horizontal" 
+                                 Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsLoading}" Color="#2196F3" />
+                        <Label Text="Creando paciente..." TextColor="Gray" />
+                    </StackLayout>
+
+                </StackLayout>
+            </Frame>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

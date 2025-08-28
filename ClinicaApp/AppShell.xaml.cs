@@ -8,6 +8,12 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
+        // Registrar rutas
         Routing.RegisterRoute("forgotpassword", typeof(ForgotPasswordPage));
+        Routing.RegisterRoute("usermanagement", typeof(UserManagementPage));
+        Routing.RegisterRoute("createdoctor", typeof(CreateDoctorPage));
+        Routing.RegisterRoute("createpatient", typeof(CreatePatientPage));
+        Routing.RegisterRoute("doctorschedule", typeof(DoctorSchedulePage));
+
     }
 }

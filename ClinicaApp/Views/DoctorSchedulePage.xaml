@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.DoctorSchedulePage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             x:DataType="viewmodels:DoctorScheduleViewModel"
+             Title="Disponibilidad Médicos">
+
+    <ScrollView Padding="20">
+        <StackLayout Spacing="20">
+
+            <Label Text="👨‍⚕️ Gestionar Horarios de Médicos" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="#4CAF50" 
+                   HorizontalOptions="Center" />
+
+            <!-- Selección de médico -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="15" Padding="20">
+                <StackLayout Spacing="15">
+                    <Label Text="Seleccionar Médico" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Picker ItemsSource="{Binding Medicos}" 
+                            ItemDisplayBinding="{Binding NombreCompleto}"
+                            SelectedItem="{Binding SelectedMedico}" 
+                            Title="Seleccione un médico..."
+                            BackgroundColor="#F5F5F5" />
+
+                    <Button Text="VER HORARIOS" 
+                            Command="{Binding LoadHorariosCommand}"
+                            BackgroundColor="#2196F3" 
+                            TextColor="White" 
+                            IsVisible="{Binding HasSelectedMedico}" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Horarios actuales -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20"
+                   IsVisible="{Binding ShowHorarios}">
+
+                <StackLayout Spacing="15">
+                    <Label Text="{Binding MedicoInfo}" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#333" />
+
+                    <Label Text="Horarios Actuales" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <CollectionView ItemsSource="{Binding HorariosActuales}" 
+                                    MaximumHeightRequest="300">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="10,5" 
+                                      ColumnDefinitions="Auto,*,Auto,Auto" 
+                                      BackgroundColor="#F9F9F9" 
+                                      Margin="0,2">
+                                    <Label Grid.Column="0" 
+                                           Text="{Binding NombreDia}" 
+                                           FontAttributes="Bold" 
+                                           VerticalOptions="Center" 
+                                           MinimumWidthRequest="80" />
+                                    <Label Grid.Column="1" 
+                                           Text="{Binding NombreSucursal}" 
+                                           FontSize="12" 
+                                           TextColor="Gray" 
+                                           VerticalOptions="Center" />
+                                    <Label Grid.Column="2" 
+                                           Text="{Binding HoraInicio}" 
+                                           VerticalOptions="Center" />
+                                    <Label Grid.Column="3" 
+                                           Text="{Binding HoraFin}" 
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Button Text="EDITAR HORARIOS" 
+                            Command="{Binding EditHorariosCommand}"
+                            BackgroundColor="#FF9800" 
+                            TextColor="White" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Formulario de edición de horarios -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20"
+                   IsVisible="{Binding ShowEditForm}">
+
+                <StackLayout Spacing="15">
+                    <Label Text="Asignar Nuevos Horarios" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Label Text="(Los horarios anteriores serán reemplazados)" 
+                           FontSize="12" 
+                           TextColor="Orange" />
+
+                    <!-- Aquí irían los controles para agregar horarios -->
+                    <StackLayout BindableLayout.ItemsSource="{Binding NuevosHorarios}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <Frame BackgroundColor="#F0F0F0" Margin="0,5" Padding="15">
+                                    <StackLayout>
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                            <StackLayout Grid.Column="0">
+                                                <Label Text="Día" FontSize="12" TextColor="Gray" />
+                                                <Picker ItemsSource="{Binding Source={x:Reference Name=PageRoot}, Path=BindingContext.DiasSemana}" 
+                                                        SelectedIndex="{Binding DiaSemanaIndex}" />
+                                            </StackLayout>
+                                            <StackLayout Grid.Column="1">
+                                                <Label Text="Sucursal" FontSize="12" TextColor="Gray" />
+                                                <Picker ItemsSource="{Binding Source={x:Reference Name=PageRoot}, Path=BindingContext.Sucursales}" 
+                                                        ItemDisplayBinding="{Binding NombreSucursal}"
+                                                        SelectedItem="{Binding SelectedSucursal}" />
+                                            </StackLayout>
+                                        </Grid>
+
+                                        <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="10" Margin="0,10,0,0">
+                                            <StackLayout Grid.Column="0">
+                                                <Label Text="Hora Inicio" FontSize="12" TextColor="Gray" />
+                                                <TimePicker Time="{Binding HoraInicioTime}" />
+                                            </StackLayout>
+                                            <StackLayout Grid.Column="1">
+                                                <Label Text="Hora Fin" FontSize="12" TextColor="Gray" />
+                                                <TimePicker Time="{Binding HoraFinTime}" />
+                                            </StackLayout>
+                                            <Button Grid.Column="2" 
+                                                    Text="❌" 
+                                                    BackgroundColor="Transparent" 
+                                                    TextColor="Red" 
+                                                    Command="{Binding Source={x:Reference Name=PageRoot}, Path=BindingContext.RemoveHorarioCommand}"
+                                                    CommandParameter="{Binding .}" 
+                                                    VerticalOptions="End" />
+                                        </Grid>
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </StackLayout>
+
+                    <Button Text="➕ AGREGAR HORARIO" 
+                            Command="{Binding AddHorarioCommand}"
+                            BackgroundColor="Transparent" 
+                            TextColor="#4CAF50" 
+                            BorderColor="#4CAF50" 
+                            BorderWidth="1" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" 
+                                Text="CANCELAR" 
+                                Command="{Binding CancelEditCommand}"
+                                BackgroundColor="Transparent" 
+                                TextColor="Gray" 
+                                BorderColor="Gray" 
+                                BorderWidth="1" />
+
+                        <Button Grid.Column="1" 
+                                Text="GUARDAR" 
+                                Command="{Binding SaveHorariosCommand}"
+                                BackgroundColor="#4CAF50" 
+                                TextColor="White" 
+                                IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Grid>
+
+                    <!-- Loading -->
+                    <StackLayout IsVisible="{Binding IsLoading}" 
+                                 HorizontalOptions="Center" 
+                                 Orientation="Horizontal" 
+                                 Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsLoading}" Color="#4CAF50" />
+                        <Label Text="Guardando horarios..." TextColor="Gray" />
+                    </StackLayout>
+
+                    <!-- Mensaje -->
+                    <Label Text="{Binding Message}" 
+                           TextColor="{Binding IsSuccess, Converter={StaticResource BoolToColorConverter}}"
+                           FontSize="14" 
+                           IsVisible="{Binding Message, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center" />
+                </StackLayout>
+            </Frame>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
