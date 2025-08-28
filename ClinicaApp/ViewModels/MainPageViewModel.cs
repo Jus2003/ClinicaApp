@@ -1,0 +1,66 @@
+﻿using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using ClinicaApp.Models;
+using ClinicaApp.Helpers;
+
+namespace ClinicaApp.ViewModels
+{
+    public class MainPageViewModel : INotifyPropertyChanged
+    {
+        public MainPageViewModel()
+        {
+            LogoutCommand = new Command(async () => await LogoutAsync());
+            NavigateCommand = new Command<SubMenu>(async (submenu) => await NavigateToSubmenuAsync(submenu));
+            LoadUserData();
+        }
+
+        public string UserName => SessionManager.CurrentUser != null
+            ? $"{SessionManager.CurrentUser.Nombre} {SessionManager.CurrentUser.Apellido}"
+            : "";
+
+        public string UserRole => SessionManager.CurrentUser?.Rol ?? "";
+        public string UserBranch => SessionManager.CurrentUser?.Sucursal ?? "";
+
+        public ObservableCollection<Menu> Menus { get; private set; } = new ObservableCollection<Menu>();
+
+        public ICommand LogoutCommand { get; }
+        public ICommand NavigateCommand { get; }
+
+        private void LoadUserData()
+        {
+            if (SessionManager.UserMenus != null)
+            {
+                Menus.Clear();
+                foreach (var menu in SessionManager.UserMenus)
+                {
+                    Menus.Add(menu);
+                }
+            }
+            OnPropertyChanged(nameof(UserName));
+            OnPropertyChanged(nameof(UserRole));
+            OnPropertyChanged(nameof(UserBranch));
+        }
+
+        private async Task LogoutAsync()
+        {
+            SessionManager.ClearSession();
+            await Shell.Current.GoToAsync("//login");
+        }
+
+        private async Task NavigateToSubmenuAsync(SubMenu submenu)
+        {
+            if (submenu != null)
+            {
+                await Shell.Current.DisplayAlert("Navegación",
+                    $"Ir a: {submenu.NombreSubmenu}\nURI: {submenu.UriSubmenu}", "OK");
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+}

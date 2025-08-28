@@ -1,0 +1,12 @@
+# Archivos temporales y de usuario de VS
+.vs/
+*.user
+*.suo
+
+# Binarios y builds
+bin/
+obj/
+
+# Otros archivos innecesarios
+*.log
+*.vsidx
