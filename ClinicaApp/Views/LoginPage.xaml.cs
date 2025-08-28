@@ -1,4 +1,4 @@
-﻿using ClinicaApp.ViewModels;
+using ClinicaApp.ViewModels;
 
 namespace ClinicaApp.Views;
 
