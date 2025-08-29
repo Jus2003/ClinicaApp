@@ -202,7 +202,7 @@ namespace ClinicaApp.Models
         public string IdReunion { get; set; }
 
         [JsonPropertyName("🔐 Password")]
-        public string Password { get; set; }
+        public int Password { get; set; }
 
         [JsonPropertyName("📝 Instrucciones")]
         public string Instrucciones { get; set; }

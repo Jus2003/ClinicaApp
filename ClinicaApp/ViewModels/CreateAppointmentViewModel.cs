@@ -37,8 +37,32 @@ namespace ClinicaApp.ViewModels
             SearchPatientCommand = new Command(async () => await SearchPatientAsync(), () => !string.IsNullOrWhiteSpace(CedulaPaciente));
             CreateAppointmentCommand = new Command(async () => await CreateAppointmentAsync(), () => CanCreateAppointment());
             CreatePatientCommand = new Command(async () => await NavigateToCreatePatientAsync());
+            SelectHorarioCommand = new Command<HorarioDisponible>(SelectHorario); // NUEVO COMANDO
+            SelectMedicoCommand = new Command<MedicoPorEspecialidad>(SelectMedico);
 
             InitializeData();
+        }
+
+        public ICommand SelectMedicoCommand { get; }
+
+
+        private void SelectMedico(MedicoPorEspecialidad medico)
+        {
+            MedicoSeleccionado = medico;
+            System.Diagnostics.Debug.WriteLine($"Médico seleccionado: {medico?.NombreCompleto}");
+            ResetHorariosSelection();
+            ((Command)LoadHorariosCommand).ChangeCanExecute();
+        }
+
+        // Agregar estas propiedades
+        public ICommand SelectHorarioCommand { get; }
+
+        // Agregar este método
+        private void SelectHorario(HorarioDisponible horario)
+        {
+            HorarioSeleccionado = horario;
+            System.Diagnostics.Debug.WriteLine($"Horario seleccionado: {horario?.Hora}");
+            ((Command)CreateAppointmentCommand).ChangeCanExecute();
         }
 
         public ObservableCollection<string> TiposCita { get; } = new ObservableCollection<string> { "presencial", "virtual" };
@@ -553,5 +577,7 @@ namespace ClinicaApp.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+
     }
 }

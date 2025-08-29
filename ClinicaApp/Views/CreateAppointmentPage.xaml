@@ -4,7 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
              xmlns:models="clr-namespace:ClinicaApp.Models"
-             xmlns:System="clr-namespace:System;assembly=mscorlib"
              x:DataType="viewmodels:CreateAppointmentViewModel"
              Title="Agendar Cita">
 
@@ -63,41 +62,55 @@
 
             <!-- Médicos Disponibles -->
             <Frame BackgroundColor="White" 
-                   HasShadow="True" 
-                   CornerRadius="15" 
-                   Padding="20"
-                   IsVisible="{Binding ShowMedicos}">
+       HasShadow="True" 
+       CornerRadius="15" 
+       Padding="20"
+       IsVisible="{Binding ShowMedicos}">
 
                 <StackLayout Spacing="15">
                     <Label Text="3. Seleccionar Médico" 
-                           FontSize="18" 
-                           FontAttributes="Bold" 
-                           TextColor="#4CAF50" />
+               FontSize="18" 
+               FontAttributes="Bold" 
+               TextColor="#4CAF50" />
 
-                    <CollectionView ItemsSource="{Binding Medicos}" 
-                        SelectionMode="Single"
-                        SelectedItem="{Binding MedicoSeleccionado}"
-                        MaximumHeightRequest="200">
-                        <CollectionView.ItemTemplate>
+                    <StackLayout BindableLayout.ItemsSource="{Binding Medicos}">
+                        <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:MedicoPorEspecialidad">
-                                <Grid Padding="10" 
-                                      BackgroundColor="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MedicoSeleccionado, Converter={StaticResource SelectedItemBackgroundConverter}}"
-                                      RowDefinitions="Auto,Auto,Auto">
-                                    <Label Grid.Row="0" 
-                                           Text="{Binding NombreCompleto}" 
-                                           FontAttributes="Bold" />
-                                    <Label Grid.Row="1" 
-                                           Text="{Binding Especialidad}" 
-                                           FontSize="12" 
-                                           TextColor="Gray" />
-                                    <Label Grid.Row="2" 
-                                           Text="{Binding Sucursal}" 
-                                           FontSize="12" 
-                                           TextColor="Gray" />
-                                </Grid>
+                                <Border BackgroundColor="White" 
+                            Stroke="#E0E0E0" 
+                            StrokeThickness="1"
+                            Margin="0,5">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8" />
+                                    </Border.StrokeShape>
+
+                                    <StackLayout Padding="15">
+                                        <Label Text="{Binding NombreCompleto}" 
+                                   FontAttributes="Bold" 
+                                   FontSize="16" />
+                                        <Label Text="{Binding Especialidad}" 
+                                   FontSize="12" 
+                                   TextColor="Gray" />
+                                        <Label Text="{Binding Sucursal}" 
+                                   FontSize="12" 
+                                   TextColor="Gray" />
+                                    </StackLayout>
+
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectMedicoCommand}"
+                                                  CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
                             </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </StackLayout>
+
+                    <!-- Mostrar médico seleccionado -->
+                    <Label Text="{Binding MedicoSeleccionado.NombreCompleto, StringFormat='Médico seleccionado: {0}'}" 
+               FontSize="14" 
+               FontAttributes="Bold" 
+               TextColor="#4CAF50" 
+               IsVisible="{Binding MedicoSeleccionado, Converter={StaticResource NullToBoolConverter}}" />
                 </StackLayout>
             </Frame>
 
@@ -127,7 +140,6 @@
             </Frame>
 
             <!-- Horarios Disponibles -->
-            <!-- Horarios Disponibles -->
             <Frame BackgroundColor="White" 
        HasShadow="True" 
        CornerRadius="15" 
@@ -140,21 +152,18 @@
                FontAttributes="Bold" 
                TextColor="#4CAF50" />
 
-                    <CollectionView ItemsSource="{Binding HorariosDisponibles}" 
-                        SelectionMode="Single"
-                        SelectedItem="{Binding HorarioSeleccionado}">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Vertical" 
-                                   ItemSpacing="10" />
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
+                    <StackLayout BindableLayout.ItemsSource="{Binding HorariosDisponibles}">
+                        <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:HorarioDisponible">
-                                <Frame BackgroundColor="#E8F5E8" 
-                           BorderColor="#4CAF50" 
-                           CornerRadius="8" 
-                           Padding="15"
-                           HasShadow="False">
-                                    <Grid ColumnDefinitions="*,*,Auto" HorizontalOptions="FillAndExpand">
+                                <Border BackgroundColor="#E8F5E8" 
+                            Stroke="#4CAF50" 
+                            StrokeThickness="1"
+                            Margin="0,5">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8" />
+                                    </Border.StrokeShape>
+
+                                    <Grid Padding="15" ColumnDefinitions="*,*,Auto">
                                         <Label Grid.Column="0" 
                                    Text="{Binding Hora}" 
                                    FontAttributes="Bold" 
@@ -170,10 +179,15 @@
                                    TextColor="Gray" 
                                    VerticalOptions="Center" />
                                     </Grid>
-                                </Frame>
+
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectHorarioCommand}"
+                                                  CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
                             </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </StackLayout>
 
                     <!-- Mostrar horario seleccionado -->
                     <Label Text="{Binding HorarioSeleccionado.Hora, StringFormat='Horario seleccionado: {0}'}" 

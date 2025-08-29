@@ -51,8 +51,8 @@ namespace ClinicaApp.Helpers
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Si el item está seleccionado, devolver color de selección
-            return value != null ? Colors.LightBlue : Colors.Transparent;
+            // Este converter no funciona bien para CollectionView, mejor eliminarlo
+            return Colors.Transparent;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -60,6 +60,7 @@ namespace ClinicaApp.Helpers
             throw new NotImplementedException();
         }
     }
+
     public class NullToBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
