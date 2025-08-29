@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.CreateAppointmentPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             xmlns:models="clr-namespace:ClinicaApp.Models"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             x:DataType="viewmodels:CreateAppointmentViewModel"
+             Title="Agendar Cita">
+
+    <ScrollView Padding="20">
+        <StackLayout Spacing="20">
+
+            <Label Text="📅 Agendar Nueva Cita" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="#4CAF50" 
+                   HorizontalOptions="Center" />
+
+            <!-- Tipo de Cita -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="15" Padding="20">
+                <StackLayout Spacing="15">
+                    <Label Text="1. Tipo de Cita" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Picker ItemsSource="{Binding TiposCita}" 
+                            SelectedItem="{Binding TipoCitaSeleccionada}" 
+                            Title="Seleccione tipo de cita"
+                            BackgroundColor="#F5F5F5" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Especialidad y Sucursal -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="15" Padding="20">
+                <StackLayout Spacing="15">
+                    <Label Text="2. Especialidad y Sucursal" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Label Text="Especialidad *" TextColor="#666" FontSize="14" />
+                    <Picker ItemsSource="{Binding Especialidades}" 
+                            ItemDisplayBinding="{Binding NombreEspecialidad}"
+                            SelectedItem="{Binding EspecialidadSeleccionada}" 
+                            Title="Seleccione especialidad"
+                            BackgroundColor="#F5F5F5" />
+
+                    <Label Text="Sucursal *" TextColor="#666" FontSize="14" />
+                    <Picker ItemsSource="{Binding Sucursales}" 
+                            ItemDisplayBinding="{Binding NombreSucursal}"
+                            SelectedItem="{Binding SucursalSeleccionada}" 
+                            Title="Seleccione sucursal"
+                            BackgroundColor="#F5F5F5" />
+
+                    <Button Text="BUSCAR MÉDICOS" 
+                            Command="{Binding LoadMedicosCommand}"
+                            BackgroundColor="#2196F3" 
+                            TextColor="White" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Médicos Disponibles -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20"
+                   IsVisible="{Binding ShowMedicos}">
+
+                <StackLayout Spacing="15">
+                    <Label Text="3. Seleccionar Médico" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <CollectionView ItemsSource="{Binding Medicos}" 
+                        SelectionMode="Single"
+                        SelectedItem="{Binding MedicoSeleccionado}"
+                        MaximumHeightRequest="200">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:MedicoPorEspecialidad">
+                                <Grid Padding="10" 
+                                      BackgroundColor="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MedicoSeleccionado, Converter={StaticResource SelectedItemBackgroundConverter}}"
+                                      RowDefinitions="Auto,Auto,Auto">
+                                    <Label Grid.Row="0" 
+                                           Text="{Binding NombreCompleto}" 
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Row="1" 
+                                           Text="{Binding Especialidad}" 
+                                           FontSize="12" 
+                                           TextColor="Gray" />
+                                    <Label Grid.Row="2" 
+                                           Text="{Binding Sucursal}" 
+                                           FontSize="12" 
+                                           TextColor="Gray" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </Frame>
+
+            <!-- Fecha y Horarios -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20"
+                   IsVisible="{Binding MedicoSeleccionado, Converter={StaticResource NullToBoolConverter}}">
+
+                <StackLayout Spacing="15">
+                    <Label Text="4. Fecha y Hora" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Label Text="Fecha *" TextColor="#666" FontSize="14" />
+                    <DatePicker Date="{Binding FechaSeleccionada}"
+                        MinimumDate="{x:Static x:DateTime.Today}"
+                                BackgroundColor="#F5F5F5" />
+
+                    <Button Text="BUSCAR HORARIOS DISPONIBLES" 
+                            Command="{Binding LoadHorariosCommand}"
+                            BackgroundColor="#FF9800" 
+                            TextColor="White" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Horarios Disponibles -->
+            <!-- Horarios Disponibles -->
+            <Frame BackgroundColor="White" 
+       HasShadow="True" 
+       CornerRadius="15" 
+       Padding="20"
+       IsVisible="{Binding ShowHorarios}">
+
+                <StackLayout Spacing="15">
+                    <Label Text="Horarios Disponibles" 
+               FontSize="16" 
+               FontAttributes="Bold" 
+               TextColor="#4CAF50" />
+
+                    <CollectionView ItemsSource="{Binding HorariosDisponibles}" 
+                        SelectionMode="Single"
+                        SelectedItem="{Binding HorarioSeleccionado}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" 
+                                   ItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:HorarioDisponible">
+                                <Frame BackgroundColor="#E8F5E8" 
+                           BorderColor="#4CAF50" 
+                           CornerRadius="8" 
+                           Padding="15"
+                           HasShadow="False">
+                                    <Grid ColumnDefinitions="*,*,Auto" HorizontalOptions="FillAndExpand">
+                                        <Label Grid.Column="0" 
+                                   Text="{Binding Hora}" 
+                                   FontAttributes="Bold" 
+                                   VerticalOptions="Center" />
+                                        <Label Grid.Column="1" 
+                                   Text="{Binding HoraFin}" 
+                                   FontSize="12" 
+                                   TextColor="Gray" 
+                                   VerticalOptions="Center" />
+                                        <Label Grid.Column="2" 
+                                   Text="45 min" 
+                                   FontSize="10" 
+                                   TextColor="Gray" 
+                                   VerticalOptions="Center" />
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Mostrar horario seleccionado -->
+                    <Label Text="{Binding HorarioSeleccionado.Hora, StringFormat='Horario seleccionado: {0}'}" 
+               FontSize="14" 
+               FontAttributes="Bold" 
+               TextColor="#4CAF50" 
+               IsVisible="{Binding HorarioSeleccionado, Converter={StaticResource NullToBoolConverter}}" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Información del Paciente -->
+            <Frame BackgroundColor="White" HasShadow="True" CornerRadius="15" Padding="20">
+                <StackLayout Spacing="15">
+                    <Label Text="5. Información del Paciente" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Label Text="Cédula del Paciente *" TextColor="#666" FontSize="14" />
+                    <Entry Text="{Binding CedulaPaciente}" 
+                           Placeholder="1234567890" 
+                           Keyboard="Numeric" 
+                           MaxLength="10"
+                           BackgroundColor="#F5F5F5" />
+
+                    <Button Text="BUSCAR PACIENTE" 
+                            Command="{Binding SearchPatientCommand}"
+                            BackgroundColor="#9C27B0" 
+                            TextColor="White" />
+
+                    <!-- Info del paciente encontrado -->
+                    <Frame BackgroundColor="#E8F5E8" 
+                           BorderColor="#4CAF50" 
+                           CornerRadius="8" 
+                           Padding="15"
+                           IsVisible="{Binding ShowPacienteInfo}">
+                        <StackLayout>
+                            <Label Text="Paciente Encontrado:" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#4CAF50" />
+                            <Label Text="{Binding PacienteInfo}" 
+                                   FontSize="14" />
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Botón crear paciente -->
+                    <Button Text="CREAR NUEVO PACIENTE" 
+                            Command="{Binding CreatePatientCommand}"
+                            BackgroundColor="Transparent" 
+                            TextColor="#F44336" 
+                            BorderColor="#F44336" 
+                            BorderWidth="1"
+                            IsVisible="{Binding ShowCreatePatientButton}" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Detalles de la Cita -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20"
+                   IsVisible="{Binding PacienteEncontrado, Converter={StaticResource NullToBoolConverter}}">
+
+                <StackLayout Spacing="15">
+                    <Label Text="6. Detalles de la Cita" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Label Text="Motivo de la Consulta *" TextColor="#666" FontSize="14" />
+                    <Entry Text="{Binding MotivoConsulta}" 
+                           Placeholder="Describe el motivo de la consulta" 
+                           BackgroundColor="#F5F5F5" />
+
+                    <Label Text="Observaciones" TextColor="#666" FontSize="14" />
+                    <Editor Text="{Binding Observaciones}" 
+                            Placeholder="Observaciones adicionales (opcional)" 
+                            HeightRequest="100"
+                            BackgroundColor="#F5F5F5" />
+
+                    <!-- Botón crear cita -->
+                    <Button Text="CREAR CITA" 
+                            Command="{Binding CreateAppointmentCommand}"
+                            BackgroundColor="#4CAF50" 
+                            TextColor="White" 
+                            FontAttributes="Bold" 
+                            HeightRequest="50"
+                            IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}" />
+
+                    <!-- Loading -->
+                    <StackLayout IsVisible="{Binding IsLoading}" 
+                                 HorizontalOptions="Center" 
+                                 Orientation="Horizontal" 
+                                 Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsLoading}" Color="#4CAF50" />
+                        <Label Text="Creando cita..." TextColor="Gray" />
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+
+            <!-- Mensaje -->
+            <Label Text="{Binding Message}" 
+                   TextColor="{Binding IsSuccess, Converter={StaticResource BoolToColorConverter}}"
+                   FontSize="14" 
+                   IsVisible="{Binding Message, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+                   HorizontalOptions="Center" 
+                   HorizontalTextAlignment="Center" />
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

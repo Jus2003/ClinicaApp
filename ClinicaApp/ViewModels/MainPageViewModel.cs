@@ -62,6 +62,9 @@ namespace ClinicaApp.ViewModels
                     case "citas/disponibilidad":
                         await Shell.Current.GoToAsync("doctorschedule");
                         break;
+                    case "citas/agendar":
+                        await Shell.Current.GoToAsync("createappointment");
+                        break;
                     default:
                         await Shell.Current.DisplayAlert("Navegación",
                             $"Ir a: {submenu.NombreSubmenu}\nURI: {submenu.UriSubmenu}", "OK");

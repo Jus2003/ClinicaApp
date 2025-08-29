@@ -8,7 +8,7 @@ namespace ClinicaApp.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "https://8a071a3bf7c3.ngrok-free.app/citas-medicas-api/public";
+        private readonly string _baseUrl = "https://52b0a681fd1e.ngrok-free.app/citas-medicas-api/public";
 
         public ApiService()
         {
@@ -483,6 +483,288 @@ namespace ClinicaApp.Services
             catch (Exception ex)
             {
                 return new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        // Agregar estos métodos al ApiService existente
+
+        public async Task<ApiResponse<List<Especialidad>>> GetEspecialidadesPorTipoAsync(string tipoCita)
+        {
+            try
+            {
+                // Por ahora usar datos hardcodeados con filtro por tipo
+                await Task.Delay(500);
+
+                var todasEspecialidades = new List<Especialidad>
+        {
+            new Especialidad { IdEspecialidad = 1, NombreEspecialidad = "Medicina General", Activo = true },
+            new Especialidad { IdEspecialidad = 2, NombreEspecialidad = "Cardiología", Activo = true },
+            new Especialidad { IdEspecialidad = 3, NombreEspecialidad = "Dermatología", Activo = true },
+            new Especialidad { IdEspecialidad = 4, NombreEspecialidad = "Pediatría", Activo = true },
+            new Especialidad { IdEspecialidad = 5, NombreEspecialidad = "Ginecología", Activo = true },
+            new Especialidad { IdEspecialidad = 6, NombreEspecialidad = "Traumatología", Activo = true },
+            new Especialidad { IdEspecialidad = 7, NombreEspecialidad = "Psicología", Activo = true },
+            new Especialidad { IdEspecialidad = 8, NombreEspecialidad = "Nutrición", Activo = true },
+            new Especialidad { IdEspecialidad = 9, NombreEspecialidad = "Oftalmología", Activo = true },
+            new Especialidad { IdEspecialidad = 10, NombreEspecialidad = "Odontología", Activo = true },
+            new Especialidad { IdEspecialidad = 11, NombreEspecialidad = "Podología", Activo = true },
+            new Especialidad { IdEspecialidad = 12, NombreEspecialidad = "Traumatología Avanzada", Activo = true }
+        };
+
+                // Filtrar especialidades según tipo de cita
+                var especialidadesFiltradas = tipoCita == "virtual"
+                    ? todasEspecialidades.Where(e => new[] { 1, 2, 5, 7, 8 }.Contains(e.IdEspecialidad)).ToList()
+                    : todasEspecialidades;
+
+                return new ApiResponse<List<Especialidad>>
+                {
+                    Success = true,
+                    Message = $"Especialidades para citas {tipoCita}",
+                    Data = especialidadesFiltradas
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<Especialidad>>
+                {
+                    Success = false,
+                    Message = $"Error: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        public async Task<ApiResponse<MedicosEspecialidadResponse>> GetMedicosPorEspecialidadAsync(int idEspecialidad, string tipoCita)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/citas/medicos-por-especialidad/{idEspecialidad}/{tipoCita}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine($"GetMedicos Response: {responseContent}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        Converters = { new StringToIntConverter() }
+                    };
+
+                    return JsonSerializer.Deserialize<ApiResponse<MedicosEspecialidadResponse>>(responseContent, options);
+                }
+                else
+                {
+                    return new ApiResponse<MedicosEspecialidadResponse>
+                    {
+                        Success = false,
+                        Message = $"Error del servidor: {response.StatusCode}",
+                        Status = (int)response.StatusCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<MedicosEspecialidadResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        public async Task<ApiResponse<HorariosDisponiblesResponse>> GetHorariosDisponiblesAsync(int idMedico, string fecha, int duracionMinutos = 45)
+        {
+            try
+            {
+                var request = new HorariosDisponiblesRequest
+                {
+                    IdMedico = idMedico,
+                    Fecha = fecha,
+                    DuracionMinutos = duracionMinutos
+                };
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                var json = JsonSerializer.Serialize(request, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/citas/horarios-disponibles", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine($"GetHorarios Request: {json}");
+                System.Diagnostics.Debug.WriteLine($"GetHorarios Response: {responseContent}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var deserializeOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        Converters = { new StringToIntConverter() }
+                    };
+
+                    return JsonSerializer.Deserialize<ApiResponse<HorariosDisponiblesResponse>>(responseContent, deserializeOptions);
+                }
+                else
+                {
+                    return new ApiResponse<HorariosDisponiblesResponse>
+                    {
+                        Success = false,
+                        Message = $"Error del servidor: {response.StatusCode}",
+                        Status = (int)response.StatusCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<HorariosDisponiblesResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        public async Task<ApiResponse<ValidarDisponibilidadResponse>> ValidarDisponibilidadAsync(int idMedico, string fechaCita, string horaCita)
+        {
+            try
+            {
+                var request = new ValidarDisponibilidadRequest
+                {
+                    IdMedico = idMedico,
+                    FechaCita = fechaCita,
+                    HoraCita = horaCita
+                };
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                var json = JsonSerializer.Serialize(request, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/citas/validar-disponibilidad", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                var deserializeOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    Converters = { new StringToIntConverter() }
+                };
+
+                return JsonSerializer.Deserialize<ApiResponse<ValidarDisponibilidadResponse>>(responseContent, deserializeOptions);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<ValidarDisponibilidadResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        public async Task<ApiResponse<CitaResponse>> CrearCitaAsync(CitaRequest cita)
+        {
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                var json = JsonSerializer.Serialize(cita, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                System.Diagnostics.Debug.WriteLine($"CrearCita Request: {json}");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/citas/crear", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine($"CrearCita Response: {responseContent}");
+
+                var deserializeOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    Converters = { new StringToIntConverter() }
+                };
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return JsonSerializer.Deserialize<ApiResponse<CitaResponse>>(responseContent, deserializeOptions);
+                }
+                else
+                {
+                    try
+                    {
+                        return JsonSerializer.Deserialize<ApiResponse<CitaResponse>>(responseContent, deserializeOptions);
+                    }
+                    catch
+                    {
+                        return new ApiResponse<CitaResponse>
+                        {
+                            Success = false,
+                            Message = $"Error del servidor: {response.StatusCode}",
+                            Status = (int)response.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<CitaResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        public async Task<ApiResponse<PatientResponse>> BuscarPacientePorCedulaAsync(string cedula)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/pacientes/buscar-cedula/{cedula}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine($"BuscarPaciente Response: {responseContent}");
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    Converters = { new StringToIntConverter() }
+                };
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return JsonSerializer.Deserialize<ApiResponse<PatientResponse>>(responseContent, options);
+                }
+                else
+                {
+                    return new ApiResponse<PatientResponse>
+                    {
+                        Success = false,
+                        Message = "Paciente no encontrado",
+                        Status = (int)response.StatusCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<PatientResponse>
                 {
                     Success = false,
                     Message = $"Error de conexión: {ex.Message}",

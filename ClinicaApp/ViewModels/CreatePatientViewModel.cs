@@ -25,6 +25,14 @@ namespace ClinicaApp.ViewModels
             CancelCommand = new Command(async () => await CancelAsync());
         }
 
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (query.ContainsKey("cedula"))
+            {
+                Patient.Cedula = query["cedula"].ToString();
+            }
+        }
+
         public Patient Patient
         {
             get => _patient;

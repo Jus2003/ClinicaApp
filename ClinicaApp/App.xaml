@@ -9,6 +9,8 @@
             <helpers:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <helpers:StringNotNullOrEmptyConverter x:Key="StringNotNullOrEmptyConverter" />
             <helpers:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
+            <helpers:SelectedItemBackgroundConverter x:Key="SelectedItemBackgroundConverter" />
         </ResourceDictionary>
     </Application.Resources>
 

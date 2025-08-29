@@ -14,7 +14,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("createdoctor", typeof(CreateDoctorPage));
         Routing.RegisterRoute("createpatient", typeof(CreatePatientPage));
         Routing.RegisterRoute("doctorschedule", typeof(DoctorSchedulePage));
-        Routing.RegisterRoute("citas/agendar", typeof(AgendarCitaPage));
+        Routing.RegisterRoute("createappointment", typeof(CreateAppointmentPage));
 
 
     }
