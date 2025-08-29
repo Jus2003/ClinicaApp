@@ -500,7 +500,6 @@ namespace ClinicaApp.ViewModels
                     mensajeExito += $"Notificaciones: {cita.Notificaciones.Mensaje}";
 
                     await Shell.Current.DisplayAlert("Cita Creada", mensajeExito, "OK");
-                    await Shell.Current.GoToAsync("..");
                 }
                 else
                 {
