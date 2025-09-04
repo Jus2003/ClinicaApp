@@ -53,6 +53,7 @@ namespace ClinicaApp.Models
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         public bool EsSiNoYTieneRespuesta => EsSiNo && !string.IsNullOrEmpty(Respuesta);
+        // Agregar dentro de la clase PreguntaTriaje
 
     }
 
@@ -67,7 +68,7 @@ namespace ClinicaApp.Models
     {
         public int IdCita { get; set; }
         public bool TriajeRealizado { get; set; }
-        public bool TriajeCompleto { get; set; }
+        public bool EsCompleto { get; set; } // 👈 CAMBIAR DE TriajeCompleto a EsCompleto
         public List<RespuestaTriajeDetallada> Respuestas { get; set; } = new List<RespuestaTriajeDetallada>();
         public EstadisticasTriaje Estadisticas { get; set; }
         public InfoCitaTriaje InfoCita { get; set; }
@@ -120,4 +121,6 @@ namespace ClinicaApp.Models
         public string Medico { get; set; }
         public string Especialidad { get; set; }
     }
+
+
 }

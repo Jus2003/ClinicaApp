@@ -14,6 +14,7 @@ namespace ClinicaApp.ViewModels
         private string _message;
         private bool _hasMessage;
         private Color _messageColor;
+        private string _estadoIcon;
 
         public MiAgendaViewModel()
         {

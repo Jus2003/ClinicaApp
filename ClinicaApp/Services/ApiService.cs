@@ -870,10 +870,15 @@ namespace ClinicaApp.Services
         {
             try
             {
-                var requestData = new { nuevo_estado = nuevoEstado };
+                object requestData;
+
                 if (!string.IsNullOrEmpty(motivoCambio))
                 {
                     requestData = new { nuevo_estado = nuevoEstado, motivo_cambio = motivoCambio };
+                }
+                else
+                {
+                    requestData = new { nuevo_estado = nuevoEstado };
                 }
 
                 var json = JsonSerializer.Serialize(requestData);
@@ -1068,7 +1073,7 @@ namespace ClinicaApp.Services
 
                     if (jsonDoc.RootElement.TryGetProperty("data", out var dataElement))
                     {
-                        triaje.TriajeCompleto = dataElement.GetProperty("triaje_completo").GetBoolean();
+                        triaje.EsCompleto = dataElement.GetProperty("triaje_completo").GetBoolean();
 
                         // Procesar respuestas
                         if (dataElement.TryGetProperty("respuestas", out var respuestasArray))

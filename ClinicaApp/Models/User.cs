@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ClinicaApp.Models
@@ -16,5 +17,8 @@ namespace ClinicaApp.Models
         public string Telefono { get; set; }
         public string Rol { get; set; }
         public string Sucursal { get; set; }
+
+        [JsonPropertyName("id_rol")]
+        public int IdRol { get; set; }
     }
 }

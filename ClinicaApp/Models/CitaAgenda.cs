@@ -80,7 +80,6 @@ namespace ClinicaApp.Models
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         }
-        public bool EsSiNoYTieneRespuesta => EsSiNo && !string.IsNullOrEmpty(Respuesta);
 
     }
 }

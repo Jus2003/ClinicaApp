@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Text.Json;
 using System.Windows.Input;
+using ClinicaApp.Helpers;
 using ClinicaApp.Models;
 using ClinicaApp.Services;
-using ClinicaApp.Helpers;
 
 namespace ClinicaApp.ViewModels
 {
@@ -176,14 +178,14 @@ namespace ClinicaApp.ViewModels
                         ShowSuccess("El triaje para esta cita ya fue completado anteriormente");
                         return;
                     }
-
                     // Cargar info de la cita
-                    if (data.TryGetProperty("info_cita", out var citaInfo))
+                    if (data.TryGetProperty("info_cita", out JsonElement citaInfo)) // 👈 CAMBIAR var por JsonElement
                     {
                         InfoCita = new InfoCitaTriaje
                         {
                             FechaCita = citaInfo.GetProperty("fecha_cita").GetString(),
                             HoraCita = citaInfo.GetProperty("hora_cita").GetString(),
+                            EstadoCita = citaInfo.GetProperty("estado_cita").GetString(),
                             Paciente = citaInfo.TryGetProperty("paciente", out var pac) ? pac.GetString() : "",
                             Medico = citaInfo.TryGetProperty("medico", out var med) ? med.GetString() : "",
                             Especialidad = citaInfo.TryGetProperty("especialidad", out var esp) ? esp.GetString() : ""

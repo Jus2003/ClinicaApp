@@ -139,7 +139,7 @@ namespace ClinicaApp.ViewModels
                 if (!TriajeData.TriajeRealizado)
                     return "PENDIENTE";
 
-                return TriajeData.TriajeCompleto ? "COMPLETADO" : "PARCIAL";
+                return TriajeData.EsCompleto ? "COMPLETADO" : "PARCIAL";
             }
         }
 
@@ -200,7 +200,7 @@ namespace ClinicaApp.ViewModels
                             Respuestas.Add(respuesta);
                         }
 
-                        var completado = TriajeData.TriajeCompleto ? "completo" : "parcial";
+                        var completado = TriajeData.EsCompleto ? "completo" : "parcial";
                         ShowSuccess($"Triaje cargado exitosamente ({completado})");
                     }
                     else

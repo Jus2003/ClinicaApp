@@ -9,8 +9,6 @@ namespace ClinicaApp.Helpers
         public static string SessionId { get; set; }
         public static bool IsLoggedIn => CurrentUser != null;
 
-        public int IdRol { get; set; } // 👈 Asegúrate de tener esta propiedad
-
 
         public static void SetUserSession(LoginResponse loginResponse)
         {
