@@ -8,7 +8,7 @@ namespace ClinicaApp.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "https://85aa4b37adbb.ngrok-free.app/citas-medicas-api/public";
+        private readonly string _baseUrl = "https://5db3f3053fc5.ngrok-free.app/citas-medicas-api/public";
 
         public ApiService()
         {

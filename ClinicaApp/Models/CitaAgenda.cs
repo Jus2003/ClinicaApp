@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Microsoft.Maui;
 
 namespace ClinicaApp.Models
 {
@@ -22,6 +21,7 @@ namespace ClinicaApp.Models
         public string EmailMedico { get; set; }
         public string NombreEspecialidad { get; set; }
         public string NombreSucursal { get; set; }
+        public bool EsMedico { get; set; }
 
         // Propiedades calculadas para la UI
         public string FechaHora => $"📅 {DateTime.Parse(FechaCita):dd/MM/yyyy} - ⏰ {TimeSpan.Parse(HoraCita):hh\\:mm}";
@@ -59,10 +59,7 @@ namespace ClinicaApp.Models
             _ => Color.FromArgb("#666666")
         };
 
-        // Para determinar qué mostrar según el rol del usuario
-        public bool EsMedico { get; set; }
         public bool EsPaciente => !EsMedico;
-
         public string PacienteOMedico => EsMedico ? NombrePaciente : NombreMedico;
         public string TituloCita => EsMedico ? $"Paciente: {NombrePaciente}" : $"Dr(a). {NombreMedico}";
         public string Especialidad => $"🏥 {NombreEspecialidad}";
@@ -78,8 +75,6 @@ namespace ClinicaApp.Models
         protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
         }
-
     }
 }

@@ -21,6 +21,7 @@ namespace ClinicaApp.Models
                 _respuesta = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(TieneRespuesta));
+                OnPropertyChanged(nameof(EsSiNoYTieneRespuesta));
             }
         }
 
@@ -43,6 +44,7 @@ namespace ClinicaApp.Models
         public bool EsEscala => TipoPregunta == "escala";
         public bool EsMultiple => TipoPregunta == "multiple";
         public bool EsSiNo => TipoPregunta == "sino";
+        public bool EsSiNoYTieneRespuesta => EsSiNo && TieneRespuesta;
 
         public string TituloConAsterisco => Obligatoria ? $"{Pregunta} *" : Pregunta;
         public Color TituloColor => Obligatoria ? Color.FromArgb("#D32F2F") : Color.FromArgb("#333333");
@@ -52,9 +54,6 @@ namespace ClinicaApp.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        public bool EsSiNoYTieneRespuesta => EsSiNo && !string.IsNullOrEmpty(Respuesta);
-        // Agregar dentro de la clase PreguntaTriaje
-
     }
 
     public class RespuestaTriaje
@@ -68,7 +67,7 @@ namespace ClinicaApp.Models
     {
         public int IdCita { get; set; }
         public bool TriajeRealizado { get; set; }
-        public bool EsCompleto { get; set; } // 👈 CAMBIAR DE TriajeCompleto a EsCompleto
+        public bool EsCompleto { get; set; } // 👈 CAMBIÉ EL NOMBRE
         public List<RespuestaTriajeDetallada> Respuestas { get; set; } = new List<RespuestaTriajeDetallada>();
         public EstadisticasTriaje Estadisticas { get; set; }
         public InfoCitaTriaje InfoCita { get; set; }
@@ -121,6 +120,4 @@ namespace ClinicaApp.Models
         public string Medico { get; set; }
         public string Especialidad { get; set; }
     }
-
-
 }
