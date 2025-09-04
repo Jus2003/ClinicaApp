@@ -68,6 +68,9 @@ namespace ClinicaApp.ViewModels
                     case "pacientes/registrar":   // Submenú desde Pacientes → Registrar
                         await Shell.Current.GoToAsync("createpatient");
                         break;
+                    case "citas/agenda":  // 👈 AGREGAR ESTA LÍNEA
+                        await Shell.Current.GoToAsync("mi-agenda");
+                        break;
                     default:
                         await Shell.Current.DisplayAlert("Navegación",
                             $"Ir a: {submenu.NombreSubmenu}\nURI: {submenu.UriSubmenu}", "OK");

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.MiAgendaPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             x:DataType="viewmodels:MiAgendaViewModel"
+             Title="Mi Agenda">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsVisible="{Binding IsLoading}" 
+                             IsRunning="{Binding IsLoading}" 
+                             Color="#4CAF50" />
+
+            <!-- Header Info -->
+            <Frame BackgroundColor="#2E7D32" 
+                   HasShadow="True" 
+                   CornerRadius="10">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                    <Label Grid.Row="0" Grid.Column="0" 
+                           Text="📅" 
+                           FontSize="24" 
+                           VerticalOptions="Center" />
+
+                    <Label Grid.Row="0" Grid.Column="1" 
+                           Text="{Binding TituloAgenda}"
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="White" 
+                           VerticalOptions="Center" 
+                           Margin="10,0,0,0" />
+
+                    <Label Grid.Row="1" Grid.Column="1" 
+                           Text="{Binding InfoUsuario}"
+                           FontSize="14" 
+                           TextColor="LightGray" 
+                           Margin="10,0,0,0" />
+                </Grid>
+            </Frame>
+
+            <!-- Messages -->
+            <Label Text="{Binding Message}" 
+                   TextColor="{Binding MessageColor}" 
+                   FontAttributes="Bold" 
+                   IsVisible="{Binding HasMessage}" 
+                   HorizontalOptions="Center" />
+
+            <!-- Lista de Citas -->
+            <CollectionView ItemsSource="{Binding Citas}" 
+                          BackgroundColor="Transparent"
+                          IsVisible="{Binding HasCitas}">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="White" 
+                               HasShadow="True" 
+                               CornerRadius="12" 
+                               Margin="0,5" 
+                               Padding="15">
+
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" 
+                                  ColumnDefinitions="*,Auto">
+
+                                <!-- Header de la Cita -->
+                                <Grid Grid.Row="0" Grid.ColumnSpan="2" 
+                                      ColumnDefinitions="Auto,*,Auto" 
+                                      Margin="0,0,0,10">
+
+                                    <Label Grid.Column="0" 
+                                           Text="{Binding EstadoIcon}" 
+                                           FontSize="18" 
+                                           VerticalOptions="Center" />
+
+                                    <Label Grid.Column="1" 
+                                           Text="{Binding TituloCita}"
+                                           FontSize="16" 
+                                           FontAttributes="Bold" 
+                                           TextColor="#333" 
+                                           VerticalOptions="Center" 
+                                           Margin="10,0,0,0" />
+
+                                    <Frame Grid.Column="2" 
+                                           BackgroundColor="{Binding EstadoColor}" 
+                                           Padding="8,4" 
+                                           CornerRadius="15" 
+                                           HasShadow="False">
+                                        <Label Text="{Binding EstadoTexto}" 
+                                               TextColor="White" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
+
+                                <!-- Información Principal -->
+                                <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="5">
+                                    <Label Text="{Binding FechaHora}" 
+                                           FontSize="14" 
+                                           TextColor="#666" />
+
+                                    <Label Text="{Binding PacienteOMedico}" 
+                                           FontSize="14" 
+                                           FontAttributes="Bold" 
+                                           TextColor="#333" />
+
+                                    <Label Text="{Binding Especialidad}" 
+                                           FontSize="13" 
+                                           TextColor="#4CAF50" />
+
+                                    <Label Text="{Binding Sucursal}" 
+                                           FontSize="12" 
+                                           TextColor="#888" />
+
+                                    <Label Text="{Binding MotivoConsulta}" 
+                                           FontSize="12" 
+                                           TextColor="#555" 
+                                           IsVisible="{Binding HasMotivo}" />
+                                </StackLayout>
+
+                                <!-- Separador -->
+                                <BoxView Grid.Row="2" Grid.ColumnSpan="2" 
+                                         HeightRequest="1" 
+                                         BackgroundColor="LightGray" 
+                                         Margin="0,10" />
+
+                                <!-- Botones para Médico -->
+                                <StackLayout Grid.Row="3" Grid.ColumnSpan="2" 
+                                           Orientation="Horizontal" 
+                                           Spacing="10"
+                                           IsVisible="{Binding EsMedico}">
+
+                                    <Button Text="✅ Confirmar" 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MiAgendaViewModel}}, Path=ConfirmarCitaCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#4CAF50" 
+                                            TextColor="White" 
+                                            CornerRadius="20" 
+                                            FontSize="12"
+                                            Padding="15,8"
+                                            IsVisible="{Binding PuedeConfirmar}" />
+
+                                    <Button Text="❌ Cancelar" 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MiAgendaViewModel}}, Path=CancelarCitaCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#F44336" 
+                                            TextColor="White" 
+                                            CornerRadius="20" 
+                                            FontSize="12"
+                                            Padding="15,8"
+                                            IsVisible="{Binding PuedeCancelar}" />
+                                </StackLayout>
+
+                                <!-- Botones para Paciente -->
+                                <Button Grid.Row="3" Grid.ColumnSpan="2"
+                                        Text="❌ Cancelar Cita" 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MiAgendaViewModel}}, Path=CancelarCitaCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="#F44336" 
+                                        TextColor="White" 
+                                        CornerRadius="20" 
+                                        FontSize="12"
+                                        Padding="15,8"
+                                        IsVisible="{Binding EsPacienteYPuedeCancelar}" />
+
+                                <!-- Botones de Triaje -->
+                                <StackLayout Grid.Row="4" Grid.ColumnSpan="2" 
+                                           Orientation="Horizontal" 
+                                           Spacing="10"
+                                           Margin="0,10,0,0">
+
+                                    <!-- Botón Responder Triaje (Paciente) -->
+                                    <Button Text="📝 Responder Triaje" 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MiAgendaViewModel}}, Path=ResponderTriajeCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#2196F3" 
+                                            TextColor="White" 
+                                            CornerRadius="20" 
+                                            FontSize="12"
+                                            Padding="15,8"
+                                            IsVisible="{Binding EsPaciente}" />
+
+                                    <!-- Botón Ver Triaje (Médico) -->
+                                    <Button Text="👁️ Ver Triaje" 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MiAgendaViewModel}}, Path=VerTriajeCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#FF9800" 
+                                            TextColor="White" 
+                                            CornerRadius="20" 
+                                            FontSize="12"
+                                            Padding="15,8"
+                                            IsVisible="{Binding EsMedico}" />
+                                </StackLayout>
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Sin citas -->
+            <StackLayout IsVisible="{Binding SinCitas}" 
+                        VerticalOptions="Center" 
+                        HorizontalOptions="Center">
+                <Label Text="📅" 
+                       FontSize="60" 
+                       HorizontalOptions="Center" />
+                <Label Text="No tienes citas programadas" 
+                       FontSize="18" 
+                       TextColor="#666" 
+                       HorizontalOptions="Center" />
+            </StackLayout>
+
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.VerTriajePage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             x:DataType="viewmodels:VerTriajeViewModel"
+             Title="Ver Triaje">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+
+            <!-- Loading -->
+            <ActivityIndicator IsVisible="{Binding IsLoading}" 
+                             IsRunning="{Binding IsLoading}" 
+                             Color="#4CAF50" />
+
+            <!-- Header -->
+            <Frame BackgroundColor="#FF9800" 
+                   HasShadow="True" 
+                   CornerRadius="10"
+                   IsVisible="{Binding HasInfoCita}">
+                <StackLayout Spacing="5">
+                    <Label Text="👁️ REVISAR TRIAJE" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="White" 
+                           HorizontalOptions="Center" />
+
+                    <Label Text="{Binding InfoCitaTexto}" 
+                           FontSize="14" 
+                           TextColor="LightYellow" 
+                           HorizontalOptions="Center" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Messages -->
+            <Label Text="{Binding Message}" 
+                   TextColor="{Binding MessageColor}" 
+                   FontAttributes="Bold" 
+                   IsVisible="{Binding HasMessage}" 
+                   HorizontalOptions="Center" />
+
+            <!-- Estado del Triaje -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="10"
+                   IsVisible="{Binding HasEstadisticas}">
+                <StackLayout>
+                    <Label Text="📊 RESUMEN DEL TRIAJE" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#333" 
+                           HorizontalOptions="Center" />
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,10,0,0">
+                        <Label Grid.Row="0" Grid.Column="0" 
+                               Text="Estado:" 
+                               FontAttributes="Bold" />
+                        <Label Grid.Row="0" Grid.Column="1" 
+                               Text="{Binding EstadoTriaje}" 
+                               TextColor="{Binding EstadoColor}" 
+                               FontAttributes="Bold" />
+
+                        <Label Grid.Row="1" Grid.Column="0" 
+                               Text="Tipo:" 
+                               FontAttributes="Bold" />
+                        <Label Grid.Row="1" Grid.Column="1" 
+                               Text="{Binding TipoTriaje}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" 
+                               Text="Fecha:" 
+                               FontAttributes="Bold" />
+                        <Label Grid.Row="2" Grid.Column="1" 
+                               Text="{Binding FechaTriaje}" />
+                    </Grid>
+                </StackLayout>
+            </Frame>
+
+            <!-- Sin Triaje -->
+            <Frame BackgroundColor="#FFF3E0" 
+                   HasShadow="True" 
+                   CornerRadius="10"
+                   IsVisible="{Binding SinTriaje}">
+                <StackLayout Spacing="10">
+                    <Label Text="⚠️ TRIAJE PENDIENTE" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#FF9800" 
+                           HorizontalOptions="Center" />
+
+                    <Label Text="El paciente aún no ha completado el triaje para esta cita." 
+                           FontSize="14" 
+                           TextColor="#FF6F00" 
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center" />
+
+                    <Label Text="📝 El paciente debe responder las preguntas del triaje antes de la consulta." 
+                           FontSize="12" 
+                           TextColor="#E65100" 
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center" 
+                           Margin="0,10,0,0" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Respuestas del Triaje -->
+            <CollectionView ItemsSource="{Binding Respuestas}" 
+                          BackgroundColor="Transparent"
+                          IsVisible="{Binding TieneRespuestas}">
+
+                <CollectionView.Header>
+                    <Label Text="💬 RESPUESTAS DEL PACIENTE" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" 
+                           HorizontalOptions="Center" 
+                           Margin="0,0,0,15" />
+                </CollectionView.Header>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="White" 
+                               HasShadow="True" 
+                               CornerRadius="10" 
+                               Margin="0,5" 
+                               Padding="15">
+
+                            <StackLayout Spacing="8">
+
+                                <!-- Pregunta con tipo -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding PreguntaFormateada}" 
+                                           FontSize="15" 
+                                           FontAttributes="Bold" 
+                                           TextColor="#333" />
+
+                                    <Frame Grid.Column="1"
+                                           BackgroundColor="{Binding TipoColor}" 
+                                           Padding="6,2" 
+                                           CornerRadius="10" 
+                                           HasShadow="False">
+                                        <Label Text="{Binding TipoPregunta}" 
+                                               TextColor="White" 
+                                               FontSize="10" 
+                                               FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
+
+                                <!-- Respuesta -->
+                                <Frame BackgroundColor="#F5F5F5" 
+                                       Padding="10" 
+                                       CornerRadius="8" 
+                                       HasShadow="False">
+                                    <Label Text="{Binding RespuestaFormateada}" 
+                                           FontSize="14" 
+                                           TextColor="#666" />
+                                </Frame>
+
+                                <!-- Info adicional -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding FechaRespuesta, StringFormat='Respondido: {0:dd/MM/yyyy HH:mm}'}" 
+                                           FontSize="11" 
+                                           TextColor="#999" />
+
+                                    <Label Grid.Column="1"
+                                           Text="{Binding TipoTriaje}" 
+                                           FontSize="11" 
+                                           TextColor="#999" 
+                                           FontAttributes="Italic" />
+                                </Grid>
+
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Botones de Acción -->
+            <StackLayout Orientation="Horizontal" 
+                       Spacing="15" 
+                       HorizontalOptions="Center"
+                       IsVisible="{Binding TieneRespuestas}">
+
+                <Button Text="📄 Generar Reporte" 
+                        Command="{Binding GenerarReporteCommand}"
+                        BackgroundColor="#2196F3" 
+                        TextColor="White" 
+                        CornerRadius="20" 
+                        FontSize="14"
+                        Padding="20,10" />
+
+                <Button Text="📧 Enviar por Email" 
+                        Command="{Binding EnviarEmailCommand}"
+                        BackgroundColor="#FF9800" 
+                        TextColor="White" 
+                        CornerRadius="20" 
+                        FontSize="14"
+                        Padding="20,10" />
+            </StackLayout>
+
+            <!-- Botón Refrescar -->
+            <Button Text="🔄 Actualizar" 
+                    Command="{Binding RefreshCommand}"
+                    BackgroundColor="#607D8B" 
+                    TextColor="White" 
+                    CornerRadius="25" 
+                    FontSize="14"
+                    Padding="15,10"
+                    HorizontalOptions="Center" />
+
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>
