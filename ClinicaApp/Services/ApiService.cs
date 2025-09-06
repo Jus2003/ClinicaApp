@@ -1290,9 +1290,9 @@ namespace ClinicaApp.Services
         }
 
         /// <summary>
-        /// Cambiar estado de una cita (completar cita con o sin observaciones)
+        /// Cambiar estado de una cita
         /// </summary>
-        public async Task<ApiResponse<ChangeAppointmentStatusResponse>> ChangeAppointmentStatusAsync(int idCita, ChangeAppointmentStatusRequest request)
+        public async Task<ApiResponse<object>> ChangeAppointmentStatusAsync(int idCita, ChangeAppointmentStatusRequest request)
         {
             try
             {
@@ -1305,10 +1305,10 @@ namespace ClinicaApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    return JsonSerializer.Deserialize<ApiResponse<ChangeAppointmentStatusResponse>>(responseContent, options);
+                    return JsonSerializer.Deserialize<ApiResponse<object>>(responseContent, options);
                 }
 
-                return new ApiResponse<ChangeAppointmentStatusResponse>
+                return new ApiResponse<object>
                 {
                     Success = false,
                     Message = $"Error: {response.StatusCode}",
@@ -1317,7 +1317,7 @@ namespace ClinicaApp.Services
             }
             catch (Exception ex)
             {
-                return new ApiResponse<ChangeAppointmentStatusResponse>
+                return new ApiResponse<object>
                 {
                     Success = false,
                     Message = $"Error de conexión: {ex.Message}",
@@ -1329,7 +1329,7 @@ namespace ClinicaApp.Services
         /// <summary>
         /// Crear receta médica para una cita
         /// </summary>
-        public async Task<ApiResponse<CreatePrescriptionResponse>> CreatePrescriptionAsync(CreatePrescriptionRequest request)
+        public async Task<ApiResponse<object>> CreatePrescriptionAsync(CreatePrescriptionRequest request)
         {
             try
             {
@@ -1342,10 +1342,10 @@ namespace ClinicaApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    return JsonSerializer.Deserialize<ApiResponse<CreatePrescriptionResponse>>(responseContent, options);
+                    return JsonSerializer.Deserialize<ApiResponse<object>>(responseContent, options);
                 }
 
-                return new ApiResponse<CreatePrescriptionResponse>
+                return new ApiResponse<object>
                 {
                     Success = false,
                     Message = $"Error: {response.StatusCode}",
@@ -1354,7 +1354,7 @@ namespace ClinicaApp.Services
             }
             catch (Exception ex)
             {
-                return new ApiResponse<CreatePrescriptionResponse>
+                return new ApiResponse<object>
                 {
                     Success = false,
                     Message = $"Error de conexión: {ex.Message}",
@@ -1362,8 +1362,6 @@ namespace ClinicaApp.Services
                 };
             }
         }
-
-
 
     }
 

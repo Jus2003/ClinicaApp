@@ -35,26 +35,8 @@ namespace ClinicaApp.Models
         [JsonPropertyName("nombre_completo")]
         public string NombreCompleto { get; set; }
 
-        [JsonPropertyName("nombre")]
-        public string Nombre { get; set; }
-
-        [JsonPropertyName("apellido")]
-        public string Apellido { get; set; }
-
         [JsonPropertyName("email")]
         public string Email { get; set; }
-
-        [JsonPropertyName("cedula")]
-        public string Cedula { get; set; }
-
-        [JsonPropertyName("telefono")]
-        public string Telefono { get; set; }
-
-        [JsonPropertyName("rol")]
-        public string Rol { get; set; }
-
-        [JsonPropertyName("sucursal")]
-        public string Sucursal { get; set; }
 
         [JsonPropertyName("especialidades")]
         public string Especialidades { get; set; }
@@ -80,29 +62,13 @@ namespace ClinicaApp.Models
         [JsonPropertyName("motivo_consulta")]
         public string MotivoConsulta { get; set; }
 
-        [JsonPropertyName("observaciones")]
-        public string Observaciones { get; set; }
-
         [JsonPropertyName("nombre_paciente")]
         public string NombrePaciente { get; set; }
-
-        [JsonPropertyName("cedula_paciente")]
-        public string CedulaPaciente { get; set; }
-
-        [JsonPropertyName("telefono_paciente")]
-        public string TelefonoPaciente { get; set; }
-
-        [JsonPropertyName("email_paciente")]
-        public string EmailPaciente { get; set; }
 
         [JsonPropertyName("nombre_especialidad")]
         public string NombreEspecialidad { get; set; }
 
-        [JsonPropertyName("nombre_sucursal")]
-        public string NombreSucursal { get; set; }
-
         // Propiedades calculadas para UI
-        public string FechaHoraFormateada => $"{FechaCita} {HoraCita}";
         public string EstadoFormateado => EstadoCita switch
         {
             "agendada" => "📅 Agendada",
@@ -133,15 +99,9 @@ namespace ClinicaApp.Models
 
         [JsonPropertyName("citas_hoy")]
         public int CitasHoy { get; set; }
-
-        [JsonPropertyName("proximas_citas")]
-        public int ProximasCitas { get; set; }
-
-        [JsonPropertyName("completadas")]
-        public int Completadas { get; set; }
     }
 
-    // Modelo para obtener detalles de cita específica
+    // Modelo para detalles de cita
     public class AppointmentDetailRequest
     {
         [JsonPropertyName("id_cita")]
@@ -150,12 +110,6 @@ namespace ClinicaApp.Models
 
     public class AppointmentDetailResponse
     {
-        [JsonPropertyName("id_cita_consultada")]
-        public int IdCitaConsultada { get; set; }
-
-        [JsonPropertyName("timestamp")]
-        public string Timestamp { get; set; }
-
         [JsonPropertyName("cita")]
         public AppointmentDetail Cita { get; set; }
     }
@@ -195,23 +149,14 @@ namespace ClinicaApp.Models
         [JsonPropertyName("email_paciente")]
         public string EmailPaciente { get; set; }
 
-        [JsonPropertyName("nombre_medico")]
-        public string NombreMedico { get; set; }
-
-        [JsonPropertyName("telefono_medico")]
-        public string TelefonoMedico { get; set; }
-
         [JsonPropertyName("nombre_especialidad")]
         public string NombreEspecialidad { get; set; }
 
         [JsonPropertyName("nombre_sucursal")]
         public string NombreSucursal { get; set; }
-
-        [JsonPropertyName("direccion_sucursal")]
-        public string DireccionSucursal { get; set; }
     }
 
-    // Modelo para cambiar estado de cita
+    // Modelos para cambiar estado y crear receta
     public class ChangeAppointmentStatusRequest
     {
         [JsonPropertyName("nuevo_estado")]
@@ -219,60 +164,8 @@ namespace ClinicaApp.Models
 
         [JsonPropertyName("observaciones")]
         public string Observaciones { get; set; }
-
-        [JsonPropertyName("motivo_cambio")]
-        public string MotivoCambio { get; set; }
     }
 
-    public class ChangeAppointmentStatusResponse
-    {
-        [JsonPropertyName("id_cita")]
-        public int IdCita { get; set; }
-
-        [JsonPropertyName("estado_anterior")]
-        public string EstadoAnterior { get; set; }
-
-        [JsonPropertyName("estado_nuevo")]
-        public string EstadoNuevo { get; set; }
-
-        [JsonPropertyName("observaciones_nuevas")]
-        public string ObservacionesNuevas { get; set; }
-
-        [JsonPropertyName("emails_enviados")]
-        public EmailStatus EmailsEnviados { get; set; }
-
-        [JsonPropertyName("cambios_realizados")]
-        public ChangeDetails CambiosRealizados { get; set; }
-    }
-
-    public class EmailStatus
-    {
-        [JsonPropertyName("paciente")]
-        public bool Paciente { get; set; }
-
-        [JsonPropertyName("medico")]
-        public bool Medico { get; set; }
-    }
-
-    public class ChangeDetails
-    {
-        [JsonPropertyName("estado_actualizado")]
-        public bool EstadoActualizado { get; set; }
-
-        [JsonPropertyName("observaciones_guardadas")]
-        public bool ObservacionesGuardadas { get; set; }
-
-        [JsonPropertyName("emails_paciente")]
-        public string EmailsPaciente { get; set; }
-
-        [JsonPropertyName("emails_medico")]
-        public string EmailsMedico { get; set; }
-
-        [JsonPropertyName("fecha_cambio")]
-        public string FechaCambio { get; set; }
-    }
-
-    // Modelo para crear receta médica
     public class CreatePrescriptionRequest
     {
         [JsonPropertyName("id_cita")]
@@ -301,53 +194,5 @@ namespace ClinicaApp.Models
 
         [JsonPropertyName("indicaciones_especiales")]
         public string IndicacionesEspeciales { get; set; }
-    }
-
-    public class CreatePrescriptionResponse
-    {
-        [JsonPropertyName("id_receta_cita")]
-        public int IdRecetaCita { get; set; }
-
-        [JsonPropertyName("codigo_receta")]
-        public string CodigoReceta { get; set; }
-
-        [JsonPropertyName("medicamento")]
-        public string Medicamento { get; set; }
-
-        [JsonPropertyName("paciente")]
-        public string Paciente { get; set; }
-
-        [JsonPropertyName("medico")]
-        public string Medico { get; set; }
-
-        [JsonPropertyName("fecha_emision")]
-        public string FechaEmision { get; set; }
-
-        [JsonPropertyName("fecha_vencimiento")]
-        public string FechaVencimiento { get; set; }
-
-        [JsonPropertyName("email_enviado")]
-        public bool EmailEnviado { get; set; }
-
-        [JsonPropertyName("notificacion_creada")]
-        public bool NotificacionCreada { get; set; }
-
-        [JsonPropertyName("cita_asociada")]
-        public AssociatedAppointment CitaAsociada { get; set; }
-    }
-
-    public class AssociatedAppointment
-    {
-        [JsonPropertyName("id_cita")]
-        public int IdCita { get; set; }
-
-        [JsonPropertyName("fecha_cita")]
-        public string FechaCita { get; set; }
-
-        [JsonPropertyName("especialidad")]
-        public string Especialidad { get; set; }
-
-        [JsonPropertyName("sucursal")]
-        public string Sucursal { get; set; }
     }
 }

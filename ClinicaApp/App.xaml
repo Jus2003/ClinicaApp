@@ -11,8 +11,10 @@
             <helpers:BoolToColorConverter x:Key="BoolToColorConverter" />
             <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
             <helpers:SelectedItemBackgroundConverter x:Key="SelectedItemBackgroundConverter" />
-            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
-            <converters:BoolToSuccessColorConverter x:Key="BoolToSuccessColorConverter" />
+
+            <!-- ✅ AGREGAR ESTOS NUEVOS CONVERTIDORES -->
+            <helpers:BoolToSuccessColorConverter x:Key="BoolToSuccessColorConverter" />
+            <helpers:StringToBoolConverter x:Key="StringToBoolConverter" />
         </ResourceDictionary>
     </Application.Resources>
 
