@@ -242,7 +242,7 @@
                                 <Label Text="💡 Estas observaciones se incluirán en el email enviado al paciente" 
                                        FontSize="12" 
                                        TextColor="#666"
-                                       FontStyle="Italic" />
+                                       FontAttributes="Italic" />
                             </StackLayout>
                         </Frame>
 
@@ -328,7 +328,7 @@
                                 <Label Text="📧 La receta será enviada automáticamente por email al paciente con un código único" 
                                        FontSize="12" 
                                        TextColor="#666"
-                                       FontStyle="Italic"
+                                       FontAttributes="Italic"
                                        HorizontalTextAlignment="Center" />
                             </StackLayout>
                         </Frame>
@@ -348,7 +348,7 @@
                         <Label Text="💡 Al completar la cita se enviará una notificación automática al paciente y al sistema" 
                                FontSize="12" 
                                TextColor="#666"
-                               FontStyle="Italic"
+                               FontAttributes="Italic"
                                HorizontalTextAlignment="Center" />
 
                     </StackLayout>

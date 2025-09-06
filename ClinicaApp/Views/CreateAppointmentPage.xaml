@@ -129,8 +129,8 @@
 
                     <Label Text="Fecha *" TextColor="#666" FontSize="14" />
                     <DatePicker Date="{Binding FechaSeleccionada}"
-                        MinimumDate="{x:Static x:DateTime.Today}"
-                                BackgroundColor="#F5F5F5" />
+                            MinimumDate="{x:Static sys:DateTime.Today}"
+                            BackgroundColor="#F5F5F5" />
 
                     <Button Text="BUSCAR HORARIOS DISPONIBLES" 
                             Command="{Binding LoadHorariosCommand}"
