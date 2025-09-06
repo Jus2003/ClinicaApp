@@ -24,6 +24,16 @@ namespace ClinicaApp.ViewModels
         private string _duracion;
         private string _cantidad;
 
+        public bool ShowObservationsForm
+        {
+            get => _addObservations;
+            set
+            {
+                _addObservations = value;
+                OnPropertyChanged();
+            }
+        }
+
         public AppointmentDetailViewModel()
         {
             _apiService = new ApiService();
@@ -270,5 +280,8 @@ namespace ClinicaApp.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        
+
     }
 }
