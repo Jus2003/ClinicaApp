@@ -1333,11 +1333,22 @@ namespace ClinicaApp.Services
         {
             try
             {
+                // ✅ DEBUG - Mostrar la URL y datos que se envían
+                var requestUrl = $"{_baseUrl}/recetas/crear";
                 var json = JsonSerializer.Serialize(request);
+
+                // Log para debug
+                System.Diagnostics.Debug.WriteLine($"🔵 RECETA REQUEST URL: {requestUrl}");
+                System.Diagnostics.Debug.WriteLine($"🔵 RECETA REQUEST JSON: {json}");
+
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync($"{_baseUrl}/recetas/crear", content);
+                var response = await _httpClient.PostAsync(requestUrl, content);
                 var responseContent = await response.Content.ReadAsStringAsync();
+
+                // ✅ DEBUG - Mostrar la respuesta del servidor
+                System.Diagnostics.Debug.WriteLine($"🔴 RECETA RESPONSE STATUS: {response.StatusCode}");
+                System.Diagnostics.Debug.WriteLine($"🔴 RECETA RESPONSE CONTENT: {responseContent}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -1348,12 +1359,15 @@ namespace ClinicaApp.Services
                 return new ApiResponse<object>
                 {
                     Success = false,
-                    Message = $"Error: {response.StatusCode}",
+                    Message = $"Error HTTP {response.StatusCode}: {responseContent}",
                     Status = (int)response.StatusCode
                 };
             }
             catch (Exception ex)
             {
+                // ✅ DEBUG - Mostrar errores de conexión
+                System.Diagnostics.Debug.WriteLine($"❌ RECETA EXCEPTION: {ex.Message}");
+
                 return new ApiResponse<object>
                 {
                     Success = false,

@@ -37,30 +37,14 @@
                     </StackLayout>
                 </StackLayout>
 
-                <!-- Filter and Refresh -->
+                <!-- Solo botón de actualizar -->
                 <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10" Padding="15">
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-
-                        <!-- Filter -->
-                        <StackLayout Grid.Column="0">
-                            <Label Text="Filtrar por estado:" FontSize="14" TextColor="#666" />
-                            <Picker ItemsSource="{Binding StatusFilters}"
-                                    SelectedItem="{Binding FilterStatus}"
-                                    BackgroundColor="#F5F5F5" />
-                        </StackLayout>
-
-                        <!-- Refresh Button -->
-                        <Button Grid.Column="1"
-                                Text="🔄" 
-                                FontSize="20"
-                                Command="{Binding RefreshCommand}"
-                                BackgroundColor="#4CAF50" 
-                                TextColor="White"
-                                WidthRequest="50"
-                                HeightRequest="50"
-                                CornerRadius="25"
-                                VerticalOptions="End" />
-                    </Grid>
+                    <Button Text="🔄 Actualizar Citas" 
+                            Command="{Binding RefreshCommand}"
+                            BackgroundColor="#4CAF50" 
+                            TextColor="White"
+                            FontAttributes="Bold" 
+                            HeightRequest="50" />
                 </Frame>
 
                 <!-- Message -->
@@ -76,7 +60,7 @@
 
                 <!-- Appointments List -->
                 <StackLayout IsVisible="{Binding HasAppointments}">
-                    <Label Text="{Binding FilteredAppointments.Count, StringFormat='📋 {0} citas encontradas'}" 
+                    <Label Text="{Binding FilteredAppointments.Count, StringFormat='📋 {0} citas activas encontradas'}" 
                            FontSize="16" 
                            FontAttributes="Bold" 
                            TextColor="#333" 
@@ -153,7 +137,7 @@
                                                     Margin="0,10,0,0" />
                                         </Grid>
 
-                                        <!-- Tap Gesture (alternative to button) -->
+                                        <!-- Tap Gesture -->
                                         <Frame.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AttendPatientsViewModel}}, Path=ViewDetailsCommand}"
                                                                   CommandParameter="{Binding .}" />
@@ -171,12 +155,12 @@
                             HorizontalOptions="CenterAndExpand"
                             Spacing="20">
                     <Label Text="📋" FontSize="60" HorizontalOptions="Center" />
-                    <Label Text="No hay citas disponibles" 
+                    <Label Text="No hay citas activas" 
                            FontSize="18" 
                            FontAttributes="Bold" 
                            TextColor="#666"
                            HorizontalTextAlignment="Center" />
-                    <Label Text="Las citas aparecerán aquí cuando tengas pacientes programados" 
+                    <Label Text="Las citas activas aparecerán aquí" 
                            FontSize="14" 
                            TextColor="#999"
                            HorizontalTextAlignment="Center" />

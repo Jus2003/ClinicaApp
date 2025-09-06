@@ -18,78 +18,28 @@ namespace ClinicaApp.ViewModels
         private bool _addObservations;
         private bool _addPrescription;
         private string _observations;
+        private bool _showObservationsForm;
+        private bool _showPrescriptionForm;
         private string _medicamento;
+        private string _concentracion;
+        private string _formaFarmaceutica;
         private string _dosis;
         private string _frecuencia;
         private string _duracion;
         private string _cantidad;
-        private bool _showObservationsForm;
-        private bool _showPrescriptionForm;
-        private string _concentracion;
-        private string _formaFarmaceutica;
         private string _indicacionesEspeciales;
-
-        public bool ShowObservationsForm
-        {
-            get => _showObservationsForm;
-            set
-            {
-                _showObservationsForm = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool ShowPrescriptionForm
-        {
-            get => _showPrescriptionForm;
-            set
-            {
-                _showPrescriptionForm = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string Concentracion
-        {
-            get => _concentracion;
-            set
-            {
-                _concentracion = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string FormaFarmaceutica
-        {
-            get => _formaFarmaceutica;
-            set
-            {
-                _formaFarmaceutica = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string IndicacionesEspeciales
-        {
-            get => _indicacionesEspeciales;
-            set
-            {
-                _indicacionesEspeciales = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public List<string> FormasFarmaceuticas { get; } = new List<string>
-{
-    "Tabletas", "Cápsulas", "Jarabe", "Gotas", "Crema", "Ungüento",
-    "Inyección", "Suspensión", "Granulado", "Aerosol"
-};
 
         public AppointmentDetailViewModel()
         {
             _apiService = new ApiService();
             CompleteAppointmentCommand = new Command(async () => await CompleteAppointmentAsync(), () => CanComplete);
             BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
+
+            FormasFarmaceuticas = new List<string>
+            {
+                "Tabletas", "Cápsulas", "Jarabe", "Gotas", "Crema", "Ungüento",
+                "Inyección", "Suspensión", "Granulado", "Aerosol"
+            };
         }
 
         public int AppointmentId
@@ -121,6 +71,7 @@ namespace ClinicaApp.ViewModels
             {
                 _isLoading = value;
                 OnPropertyChanged();
+                ((Command)CompleteAppointmentCommand).ChangeCanExecute();
             }
         }
 
@@ -161,8 +112,9 @@ namespace ClinicaApp.ViewModels
             set
             {
                 _addObservations = value;
-                ShowObservationsForm = value;  // ← AGREGAR ESTA LÍNEA
+                ShowObservationsForm = value;
                 OnPropertyChanged();
+                ValidateForm();
             }
         }
 
@@ -172,8 +124,9 @@ namespace ClinicaApp.ViewModels
             set
             {
                 _addPrescription = value;
-                ShowPrescriptionForm = value;  // ← AGREGAR ESTA LÍNEA
+                ShowPrescriptionForm = value;
                 OnPropertyChanged();
+                ValidateForm();
             }
         }
 
@@ -184,16 +137,57 @@ namespace ClinicaApp.ViewModels
             {
                 _observations = value;
                 OnPropertyChanged();
+                ValidateForm();
             }
         }
 
-        // Propiedades para receta
+        public bool ShowObservationsForm
+        {
+            get => _showObservationsForm;
+            set
+            {
+                _showObservationsForm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowPrescriptionForm
+        {
+            get => _showPrescriptionForm;
+            set
+            {
+                _showPrescriptionForm = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Medicamento
         {
             get => _medicamento;
             set
             {
                 _medicamento = value;
+                OnPropertyChanged();
+                ValidateForm();
+            }
+        }
+
+        public string Concentracion
+        {
+            get => _concentracion;
+            set
+            {
+                _concentracion = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string FormaFarmaceutica
+        {
+            get => _formaFarmaceutica;
+            set
+            {
+                _formaFarmaceutica = value;
                 OnPropertyChanged();
             }
         }
@@ -205,6 +199,7 @@ namespace ClinicaApp.ViewModels
             {
                 _dosis = value;
                 OnPropertyChanged();
+                ValidateForm();
             }
         }
 
@@ -215,6 +210,7 @@ namespace ClinicaApp.ViewModels
             {
                 _frecuencia = value;
                 OnPropertyChanged();
+                ValidateForm();
             }
         }
 
@@ -225,6 +221,7 @@ namespace ClinicaApp.ViewModels
             {
                 _duracion = value;
                 OnPropertyChanged();
+                ValidateForm();
             }
         }
 
@@ -235,8 +232,21 @@ namespace ClinicaApp.ViewModels
             {
                 _cantidad = value;
                 OnPropertyChanged();
+                ValidateForm();
             }
         }
+
+        public string IndicacionesEspeciales
+        {
+            get => _indicacionesEspeciales;
+            set
+            {
+                _indicacionesEspeciales = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<string> FormasFarmaceuticas { get; }
 
         public ICommand CompleteAppointmentCommand { get; }
         public ICommand BackCommand { get; }
@@ -246,11 +256,14 @@ namespace ClinicaApp.ViewModels
             try
             {
                 IsLoading = true;
+                Message = "";
+
                 var response = await _apiService.GetAppointmentDetailAsync(AppointmentId);
 
                 if (response.Success && response.Data?.Cita != null)
                 {
                     Appointment = response.Data.Cita;
+                    Message = "Detalles cargados correctamente";
                     IsSuccess = true;
                 }
                 else
@@ -261,7 +274,7 @@ namespace ClinicaApp.ViewModels
             }
             catch (Exception ex)
             {
-                Message = $"Error: {ex.Message}";
+                Message = $"Error cargando detalles: {ex.Message}";
                 IsSuccess = false;
             }
             finally
@@ -272,9 +285,25 @@ namespace ClinicaApp.ViewModels
 
         private void UpdateCanComplete()
         {
-            CanComplete = Appointment != null &&
-                         (Appointment.EstadoCita == "confirmada" || Appointment.EstadoCita == "en_curso") &&
-                         !IsLoading;
+            // Sin restricciones - cualquier cita se puede procesar
+            CanComplete = Appointment != null && !IsLoading;
+        }
+
+        private void ValidateForm()
+        {
+            if (AddPrescription)
+            {
+                CanComplete = !string.IsNullOrWhiteSpace(Medicamento) &&
+                             !string.IsNullOrWhiteSpace(Dosis) &&
+                             !string.IsNullOrWhiteSpace(Frecuencia) &&
+                             !string.IsNullOrWhiteSpace(Duracion) &&
+                             !string.IsNullOrWhiteSpace(Cantidad) &&
+                             !IsLoading;
+            }
+            else
+            {
+                CanComplete = Appointment != null && !IsLoading;
+            }
         }
 
         private async Task CompleteAppointmentAsync()
@@ -282,8 +311,13 @@ namespace ClinicaApp.ViewModels
             try
             {
                 IsLoading = true;
+                Message = "";
 
-                // Cambiar estado de la cita
+                // Variables para tracking
+                bool observacionesGuardadas = false;
+                bool recetaCreada = false;
+
+                // 1. Cambiar estado de la cita
                 var changeStatusRequest = new ChangeAppointmentStatusRequest
                 {
                     NuevoEstado = "completada",
@@ -295,32 +329,124 @@ namespace ClinicaApp.ViewModels
                 if (!statusResponse.Success)
                 {
                     Message = $"Error al completar cita: {statusResponse.Message}";
+                    IsSuccess = false;
                     return;
                 }
 
-                // Crear receta si se marcó la opción
-                if (AddPrescription && !string.IsNullOrEmpty(Medicamento))
+                // Marcar observaciones como guardadas
+                if (AddObservations && !string.IsNullOrWhiteSpace(Observations))
                 {
+                    observacionesGuardadas = true;
+                }
+
+                // 2. AQUÍ ESTÁ EL PROBLEMA - Verificar si se debe crear receta
+                if (AddPrescription)
+                {
+                    // ✅ AGREGAR ESTE DEBUG
+                    Message = "Creando receta médica...";
+
+                    // ✅ VERIFICAR TODOS LOS CAMPOS REQUERIDOS
+                    if (string.IsNullOrWhiteSpace(Medicamento))
+                    {
+                        Message = "ERROR: Medicamento es requerido para la receta";
+                        IsSuccess = false;
+                        return;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(Dosis))
+                    {
+                        Message = "ERROR: Dosis es requerida para la receta";
+                        IsSuccess = false;
+                        return;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(Frecuencia))
+                    {
+                        Message = "ERROR: Frecuencia es requerida para la receta";
+                        IsSuccess = false;
+                        return;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(Duracion))
+                    {
+                        Message = "ERROR: Duración es requerida para la receta";
+                        IsSuccess = false;
+                        return;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(Cantidad))
+                    {
+                        Message = "ERROR: Cantidad es requerida para la receta";
+                        IsSuccess = false;
+                        return;
+                    }
+
+                    // ✅ MOSTRAR LOS DATOS QUE SE VAN A ENVIAR
+                    var datosReceta = $"Datos de receta:\n" +
+                                    $"- ID Cita: {AppointmentId}\n" +
+                                    $"- Medicamento: {Medicamento}\n" +
+                                    $"- Concentración: {Concentracion}\n" +
+                                    $"- Forma: {FormaFarmaceutica}\n" +
+                                    $"- Dosis: {Dosis}\n" +
+                                    $"- Frecuencia: {Frecuencia}\n" +
+                                    $"- Duración: {Duracion}\n" +
+                                    $"- Cantidad: {Cantidad}\n" +
+                                    $"- Indicaciones: {IndicacionesEspeciales}";
+
+                    // Mostrar en debug o como mensaje temporal
+                    await Shell.Current.DisplayAlert("DEBUG - Datos de Receta", datosReceta, "OK");
+
                     var prescriptionRequest = new CreatePrescriptionRequest
                     {
                         IdCita = AppointmentId,
                         Medicamento = Medicamento,
+                        Concentracion = Concentracion ?? "",
+                        FormaFarmaceutica = FormaFarmaceutica ?? "",
                         Dosis = Dosis,
                         Frecuencia = Frecuencia,
                         Duracion = Duracion,
-                        Cantidad = Cantidad
+                        Cantidad = Cantidad,
+                        IndicacionesEspeciales = IndicacionesEspeciales ?? ""
                     };
 
-                    await _apiService.CreatePrescriptionAsync(prescriptionRequest);
+                    var prescriptionResponse = await _apiService.CreatePrescriptionAsync(prescriptionRequest);
+
+                    if (prescriptionResponse.Success)
+                    {
+                        recetaCreada = true;
+                        Message = "✅ Receta creada exitosamente";
+                    }
+                    else
+                    {
+                        // ✅ MOSTRAR EL ERROR ESPECÍFICO
+                        var errorDetallado = $"Error creando receta:\n" +
+                                           $"Status: {prescriptionResponse.Status}\n" +
+                                           $"Message: {prescriptionResponse.Message}";
+
+                        await Shell.Current.DisplayAlert("ERROR - Receta", errorDetallado, "OK");
+
+                        Message = $"Cita completada, pero error al crear receta: {prescriptionResponse.Message}";
+                        IsSuccess = false;
+                        return;
+                    }
                 }
 
-                await Shell.Current.DisplayAlert("Éxito", "¡Cita completada exitosamente!", "OK");
+                // 3. Mostrar mensaje final
+                await Task.Delay(2000);
                 await Shell.Current.GoToAsync("..");
 
             }
             catch (Exception ex)
             {
-                Message = $"Error: {ex.Message}";
+                // ✅ MOSTRAR ERROR DETALLADO
+                var errorCompleto = $"Error en CompleteAppointmentAsync:\n" +
+                                   $"Message: {ex.Message}\n" +
+                                   $"StackTrace: {ex.StackTrace}";
+
+                await Shell.Current.DisplayAlert("ERROR COMPLETO", errorCompleto, "OK");
+
+                Message = $"Error completando cita: {ex.Message}";
+                IsSuccess = false;
             }
             finally
             {
@@ -333,8 +459,5 @@ namespace ClinicaApp.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        
-
     }
 }

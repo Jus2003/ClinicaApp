@@ -153,11 +153,11 @@
                        HasShadow="True" 
                        CornerRadius="15" 
                        Padding="20"
-                       IsVisible="{Binding CanComplete}">
+                       IsVisible="{Binding Appointment, Converter={StaticResource NullToBoolConverter}}">
 
                     <StackLayout Spacing="20">
 
-                        <Label Text="✅ Completar Cita" 
+                        <Label Text="✅ Procesar Cita" 
                                FontSize="20" 
                                FontAttributes="Bold" 
                                TextColor="#4CAF50" 
@@ -345,32 +345,12 @@
                                 CornerRadius="15"
                                 Margin="0,20,0,0" />
 
-                        <Label Text="💡 Al completar la cita se enviará una notificación automática al paciente y al sistema" 
+                        <Label Text="💡 Al completar la cita se enviará una notificación automática al paciente" 
                                FontSize="12" 
                                TextColor="#666"
                                FontAttributes="Italic"
                                HorizontalTextAlignment="Center" />
 
-                    </StackLayout>
-                </Frame>
-
-                <!-- Cannot Complete Message -->
-                <Frame BackgroundColor="#FFEBEE" 
-                       Padding="20" 
-                       CornerRadius="12"
-                       BorderColor="#F44336"
-                       IsVisible="{Binding CanComplete, Converter={StaticResource InvertedBoolConverter}}">
-                    <StackLayout Spacing="10" HorizontalOptions="Center">
-                        <Label Text="⚠️" FontSize="30" HorizontalOptions="Center" />
-                        <Label Text="No se puede completar esta cita" 
-                               FontSize="16" 
-                               FontAttributes="Bold" 
-                               TextColor="#D32F2F"
-                               HorizontalTextAlignment="Center" />
-                        <Label Text="Solo se pueden completar citas confirmadas o en curso" 
-                               FontSize="14" 
-                               TextColor="#666"
-                               HorizontalTextAlignment="Center" />
                     </StackLayout>
                 </Frame>
 

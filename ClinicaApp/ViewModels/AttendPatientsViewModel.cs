@@ -13,6 +13,7 @@ namespace ClinicaApp.ViewModels
         private bool _isLoading;
         private string _message;
         private bool _isSuccess;
+        private ObservableCollection<AppointmentSummary> _filteredAppointments;
 
         public AttendPatientsViewModel()
         {
@@ -23,11 +24,20 @@ namespace ClinicaApp.ViewModels
             RefreshCommand = new Command(async () => await LoadAppointmentsAsync());
             ViewDetailsCommand = new Command<AppointmentSummary>(async (appointment) => await ViewAppointmentDetailsAsync(appointment));
 
-
             LoadAppointmentsAsync();
         }
 
         public ObservableCollection<AppointmentSummary> Appointments { get; set; }
+
+        public ObservableCollection<AppointmentSummary> FilteredAppointments
+        {
+            get => _filteredAppointments;
+            set
+            {
+                _filteredAppointments = value;
+                OnPropertyChanged();
+            }
+        }
 
         public bool IsLoading
         {
@@ -59,7 +69,7 @@ namespace ClinicaApp.ViewModels
             }
         }
 
-        public bool HasAppointments => Appointments?.Count > 0;
+        public bool HasAppointments => FilteredAppointments?.Count > 0;
 
         public ICommand RefreshCommand { get; }
         public ICommand ViewDetailsCommand { get; }
@@ -89,7 +99,10 @@ namespace ClinicaApp.ViewModels
                         Appointments.Add(appointment);
                     }
 
-                    Message = $"Se cargaron {Appointments.Count} citas";
+                    // Aplicar filtro simple
+                    FilterAppointments();
+
+                    Message = $"Se cargaron {FilteredAppointments.Count} citas activas";
                     IsSuccess = true;
                 }
                 else
@@ -110,6 +123,31 @@ namespace ClinicaApp.ViewModels
             }
         }
 
+        private void FilterAppointments()
+        {
+            if (Appointments == null) return;
+
+            if (FilteredAppointments == null)
+            {
+                FilteredAppointments = new ObservableCollection<AppointmentSummary>();
+            }
+
+            // Solo mostrar citas que NO estén completadas ni canceladas
+            var filtered = Appointments.Where(a =>
+                a.EstadoCita != "completada" &&
+                a.EstadoCita != "cancelada"
+            );
+
+            FilteredAppointments.Clear();
+            foreach (var appointment in filtered.OrderBy(a => a.FechaCita).ThenBy(a => a.HoraCita))
+            {
+                FilteredAppointments.Add(appointment);
+            }
+
+            OnPropertyChanged(nameof(HasAppointments));
+            OnPropertyChanged(nameof(FilteredAppointments));
+        }
+
         private async Task ViewAppointmentDetailsAsync(AppointmentSummary appointment)
         {
             try
@@ -127,54 +165,6 @@ namespace ClinicaApp.ViewModels
         protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-
-        // ✅ AGREGAR ESTAS PROPIEDADES al AttendPatientsViewModel.cs
-
-        private ObservableCollection<AppointmentSummary> _filteredAppointments;
-        private string _filterStatus = "Todas";
-
-        public ObservableCollection<AppointmentSummary> FilteredAppointments
-        {
-            get => _filteredAppointments;
-            set
-            {
-                _filteredAppointments = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public List<string> StatusFilters { get; } = new List<string>
-            {
-                "Todas", "Confirmada", "En Curso", "Agendada", "Completada"
-            };
-
-        public string FilterStatus
-        {
-            get => _filterStatus;
-            set
-            {
-                _filterStatus = value;
-                OnPropertyChanged();
-                FilterAppointments(value);
-            }
-        }
-
-        // Este es el método que te falta
-        private void FilterAppointments(string status)
-        {
-            if (Appointments == null) return;
-
-            FilteredAppointments.Clear();
-
-            var filtered = Appointments
-                .Where(a => status == "Todas" || a.EstadoCita.Contains(status));
-
-            foreach (var app in filtered)
-            {
-                FilteredAppointments.Add(app);
-            }
         }
     }
 }
