@@ -18,9 +18,11 @@ namespace ClinicaApp.ViewModels
         {
             _apiService = new ApiService();
             Appointments = new ObservableCollection<AppointmentSummary>();
+            FilteredAppointments = new ObservableCollection<AppointmentSummary>();
 
             RefreshCommand = new Command(async () => await LoadAppointmentsAsync());
             ViewDetailsCommand = new Command<AppointmentSummary>(async (appointment) => await ViewAppointmentDetailsAsync(appointment));
+
 
             LoadAppointmentsAsync();
         }
@@ -125,6 +127,54 @@ namespace ClinicaApp.ViewModels
         protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+        // ✅ AGREGAR ESTAS PROPIEDADES al AttendPatientsViewModel.cs
+
+        private ObservableCollection<AppointmentSummary> _filteredAppointments;
+        private string _filterStatus = "Todas";
+
+        public ObservableCollection<AppointmentSummary> FilteredAppointments
+        {
+            get => _filteredAppointments;
+            set
+            {
+                _filteredAppointments = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<string> StatusFilters { get; } = new List<string>
+            {
+                "Todas", "Confirmada", "En Curso", "Agendada", "Completada"
+            };
+
+        public string FilterStatus
+        {
+            get => _filterStatus;
+            set
+            {
+                _filterStatus = value;
+                OnPropertyChanged();
+                FilterAppointments(value);
+            }
+        }
+
+        // Este es el método que te falta
+        private void FilterAppointments(string status)
+        {
+            if (Appointments == null) return;
+
+            FilteredAppointments.Clear();
+
+            var filtered = Appointments
+                .Where(a => status == "Todas" || a.EstadoCita.Contains(status));
+
+            foreach (var app in filtered)
+            {
+                FilteredAppointments.Add(app);
+            }
         }
     }
 }

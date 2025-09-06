@@ -23,16 +23,67 @@ namespace ClinicaApp.ViewModels
         private string _frecuencia;
         private string _duracion;
         private string _cantidad;
+        private bool _showObservationsForm;
+        private bool _showPrescriptionForm;
+        private string _concentracion;
+        private string _formaFarmaceutica;
+        private string _indicacionesEspeciales;
 
         public bool ShowObservationsForm
         {
-            get => _addObservations;
+            get => _showObservationsForm;
             set
             {
-                _addObservations = value;
+                _showObservationsForm = value;
                 OnPropertyChanged();
             }
         }
+
+        public bool ShowPrescriptionForm
+        {
+            get => _showPrescriptionForm;
+            set
+            {
+                _showPrescriptionForm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Concentracion
+        {
+            get => _concentracion;
+            set
+            {
+                _concentracion = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string FormaFarmaceutica
+        {
+            get => _formaFarmaceutica;
+            set
+            {
+                _formaFarmaceutica = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string IndicacionesEspeciales
+        {
+            get => _indicacionesEspeciales;
+            set
+            {
+                _indicacionesEspeciales = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<string> FormasFarmaceuticas { get; } = new List<string>
+{
+    "Tabletas", "Cápsulas", "Jarabe", "Gotas", "Crema", "Ungüento",
+    "Inyección", "Suspensión", "Granulado", "Aerosol"
+};
 
         public AppointmentDetailViewModel()
         {
@@ -110,6 +161,7 @@ namespace ClinicaApp.ViewModels
             set
             {
                 _addObservations = value;
+                ShowObservationsForm = value;  // ← AGREGAR ESTA LÍNEA
                 OnPropertyChanged();
             }
         }
@@ -120,6 +172,7 @@ namespace ClinicaApp.ViewModels
             set
             {
                 _addPrescription = value;
+                ShowPrescriptionForm = value;  // ← AGREGAR ESTA LÍNEA
                 OnPropertyChanged();
             }
         }
