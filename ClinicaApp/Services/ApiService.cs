@@ -8,7 +8,7 @@ namespace ClinicaApp.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "https://5db3f3053fc5.ngrok-free.app/citas-medicas-api/public";
+        private readonly string _baseUrl = "https://824a27e91925.ngrok-free.app/citas-medicas-api/public";
 
         public ApiService()
         {
@@ -1208,6 +1208,161 @@ namespace ClinicaApp.Services
                 };
             }
         }
+
+
+
+        // ✅ AGREGAR ESTOS MÉTODOS AL ApiService EXISTENTE
+
+        /// <summary>
+        /// Obtener citas del médico logueado
+        /// </summary>
+        public async Task<ApiResponse<DoctorAppointmentsResponse>> GetDoctorAppointmentsAsync(int idMedico)
+        {
+            try
+            {
+                var request = new DoctorAppointmentsRequest { IdMedico = idMedico };
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/citas/buscar-por-medico", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    return JsonSerializer.Deserialize<ApiResponse<DoctorAppointmentsResponse>>(responseContent, options);
+                }
+
+                return new ApiResponse<DoctorAppointmentsResponse>
+                {
+                    Success = false,
+                    Message = $"Error: {response.StatusCode}",
+                    Status = (int)response.StatusCode
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<DoctorAppointmentsResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        /// <summary>
+        /// Obtener detalles de una cita específica
+        /// </summary>
+        public async Task<ApiResponse<AppointmentDetailResponse>> GetAppointmentDetailAsync(int idCita)
+        {
+            try
+            {
+                var request = new AppointmentDetailRequest { IdCita = idCita };
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/citas/buscar-por-id", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    return JsonSerializer.Deserialize<ApiResponse<AppointmentDetailResponse>>(responseContent, options);
+                }
+
+                return new ApiResponse<AppointmentDetailResponse>
+                {
+                    Success = false,
+                    Message = $"Error: {response.StatusCode}",
+                    Status = (int)response.StatusCode
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<AppointmentDetailResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        /// <summary>
+        /// Cambiar estado de una cita (completar cita con o sin observaciones)
+        /// </summary>
+        public async Task<ApiResponse<ChangeAppointmentStatusResponse>> ChangeAppointmentStatusAsync(int idCita, ChangeAppointmentStatusRequest request)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/citas/cambiar-estado/{idCita}", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    return JsonSerializer.Deserialize<ApiResponse<ChangeAppointmentStatusResponse>>(responseContent, options);
+                }
+
+                return new ApiResponse<ChangeAppointmentStatusResponse>
+                {
+                    Success = false,
+                    Message = $"Error: {response.StatusCode}",
+                    Status = (int)response.StatusCode
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<ChangeAppointmentStatusResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        /// <summary>
+        /// Crear receta médica para una cita
+        /// </summary>
+        public async Task<ApiResponse<CreatePrescriptionResponse>> CreatePrescriptionAsync(CreatePrescriptionRequest request)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/recetas/crear", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    return JsonSerializer.Deserialize<ApiResponse<CreatePrescriptionResponse>>(responseContent, options);
+                }
+
+                return new ApiResponse<CreatePrescriptionResponse>
+                {
+                    Success = false,
+                    Message = $"Error: {response.StatusCode}",
+                    Status = (int)response.StatusCode
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<CreatePrescriptionResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
 
 
     }

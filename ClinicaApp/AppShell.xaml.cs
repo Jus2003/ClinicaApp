@@ -19,6 +19,8 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("mi-agenda", typeof(MiAgendaPage));
         Routing.RegisterRoute("responder-triaje", typeof(ResponderTriajePage));
         Routing.RegisterRoute("ver-triaje", typeof(VerTriajePage));
+        Routing.RegisterRoute(nameof(AttendPatientsPage), typeof(AttendPatientsPage));
+        Routing.RegisterRoute(nameof(AppointmentDetailPage), typeof(AppointmentDetailPage));
 
 
     }

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.AttendPatientsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             xmlns:models="clr-namespace:ClinicaApp.Models"
+             x:DataType="viewmodels:AttendPatientsViewModel"
+             Title="Atender Pacientes">
+
+    <Grid>
+        <!-- Loading Overlay -->
+        <Frame BackgroundColor="Black" 
+               Opacity="0.5" 
+               IsVisible="{Binding IsLoading}"
+               ZIndex="999">
+            <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                             Color="White" 
+                             VerticalOptions="Center" 
+                             HorizontalOptions="Center" />
+        </Frame>
+
+        <!-- Main Content -->
+        <ScrollView Padding="20">
+            <StackLayout Spacing="20">
+
+                <!-- Header -->
+                <StackLayout Orientation="Horizontal" Spacing="10">
+                    <Label Text="👨‍⚕️" FontSize="30" VerticalOptions="Center" />
+                    <StackLayout>
+                        <Label Text="Atender Pacientes" 
+                               FontSize="24" 
+                               FontAttributes="Bold" 
+                               TextColor="#2E7D32" />
+                        <Label Text="Gestiona las citas de tus pacientes" 
+                               FontSize="14" 
+                               TextColor="#666" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Filter and Refresh -->
+                <Frame BackgroundColor="White" HasShadow="True" CornerRadius="10" Padding="15">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+
+                        <!-- Filter -->
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Filtrar por estado:" FontSize="14" TextColor="#666" />
+                            <Picker ItemsSource="{Binding StatusFilters}"
+                                    SelectedItem="{Binding FilterStatus}"
+                                    BackgroundColor="#F5F5F5" />
+                        </StackLayout>
+
+                        <!-- Refresh Button -->
+                        <Button Grid.Column="1"
+                                Text="🔄" 
+                                FontSize="20"
+                                Command="{Binding RefreshCommand}"
+                                BackgroundColor="#4CAF50" 
+                                TextColor="White"
+                                WidthRequest="50"
+                                HeightRequest="50"
+                                CornerRadius="25"
+                                VerticalOptions="End" />
+                    </Grid>
+                </Frame>
+
+                <!-- Message -->
+                <Frame IsVisible="{Binding Message, Converter={StaticResource StringToBoolConverter}}"
+                       BackgroundColor="{Binding IsSuccess, Converter={StaticResource BoolToSuccessColorConverter}}"
+                       Padding="15"
+                       CornerRadius="8">
+                    <Label Text="{Binding Message}" 
+                           TextColor="White" 
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                </Frame>
+
+                <!-- Appointments List -->
+                <StackLayout IsVisible="{Binding HasAppointments}">
+                    <Label Text="{Binding FilteredAppointments.Count, StringFormat='📋 {0} citas encontradas'}" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#333" 
+                           Margin="0,0,0,10" />
+
+                    <CollectionView ItemsSource="{Binding FilteredAppointments}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:AppointmentSummary">
+                                <Grid Padding="5">
+                                    <Frame BackgroundColor="White" 
+                                           HasShadow="True" 
+                                           CornerRadius="12" 
+                                           Padding="15">
+
+                                        <Grid RowDefinitions="Auto,Auto,Auto,Auto" 
+                                              ColumnDefinitions="*,Auto"
+                                              RowSpacing="8">
+
+                                            <!-- Patient Name -->
+                                            <Label Grid.Row="0" Grid.Column="0"
+                                                   Text="{Binding NombrePaciente}" 
+                                                   FontSize="18" 
+                                                   FontAttributes="Bold" 
+                                                   TextColor="#2E7D32" />
+
+                                            <!-- Status Badge -->
+                                            <Frame Grid.Row="0" Grid.Column="1" 
+                                                   BackgroundColor="{Binding EstadoColor}" 
+                                                   Padding="8,4" 
+                                                   CornerRadius="12"
+                                                   HasShadow="False">
+                                                <Label Text="{Binding EstadoFormateado}" 
+                                                       FontSize="12" 
+                                                       TextColor="White" 
+                                                       FontAttributes="Bold" />
+                                            </Frame>
+
+                                            <!-- Date and Time -->
+                                            <StackLayout Grid.Row="1" Grid.ColumnSpan="2" 
+                                                        Orientation="Horizontal" 
+                                                        Spacing="15">
+                                                <Label Text="{Binding FechaCita, StringFormat='📅 {0}'}" 
+                                                       FontSize="14" 
+                                                       TextColor="#666" />
+                                                <Label Text="{Binding HoraCita, StringFormat='🕐 {0}'}" 
+                                                       FontSize="14" 
+                                                       TextColor="#666" />
+                                                <Label Text="{Binding TipoCita, StringFormat='🏥 {0}'}" 
+                                                       FontSize="14" 
+                                                       TextColor="#666" />
+                                            </StackLayout>
+
+                                            <!-- Specialty and Reason -->
+                                            <StackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="4">
+                                                <Label Text="{Binding NombreEspecialidad, StringFormat='⚕️ {0}'}" 
+                                                       FontSize="14" 
+                                                       TextColor="#333" />
+                                                <Label Text="{Binding MotivoConsulta, StringFormat='💬 {0}'}" 
+                                                       FontSize="14" 
+                                                       TextColor="#666"
+                                                       LineBreakMode="TailTruncation" />
+                                            </StackLayout>
+
+                                            <!-- Action Button -->
+                                            <Button Grid.Row="3" Grid.ColumnSpan="2"
+                                                    Text="Ver Detalles" 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AttendPatientsViewModel}}, Path=ViewDetailsCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="#4CAF50" 
+                                                    TextColor="White" 
+                                                    FontAttributes="Bold"
+                                                    CornerRadius="8"
+                                                    Margin="0,10,0,0" />
+                                        </Grid>
+
+                                        <!-- Tap Gesture (alternative to button) -->
+                                        <Frame.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AttendPatientsViewModel}}, Path=ViewDetailsCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Frame.GestureRecognizers>
+                                    </Frame>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+
+                <!-- Empty State -->
+                <StackLayout IsVisible="{Binding HasAppointments, Converter={StaticResource InvertedBoolConverter}}"
+                            VerticalOptions="CenterAndExpand"
+                            HorizontalOptions="CenterAndExpand"
+                            Spacing="20">
+                    <Label Text="📋" FontSize="60" HorizontalOptions="Center" />
+                    <Label Text="No hay citas disponibles" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#666"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Las citas aparecerán aquí cuando tengas pacientes programados" 
+                           FontSize="14" 
+                           TextColor="#999"
+                           HorizontalTextAlignment="Center" />
+                    <Button Text="Actualizar" 
+                            Command="{Binding RefreshCommand}"
+                            BackgroundColor="#4CAF50" 
+                            TextColor="White" />
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.AppointmentDetailPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             x:DataType="viewmodels:AppointmentDetailViewModel"
+             Title="Detalles de Cita">
+
+    <Grid>
+        <!-- Loading Overlay -->
+        <Frame BackgroundColor="Black" 
+               Opacity="0.7" 
+               IsVisible="{Binding IsLoading}"
+               ZIndex="999">
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                                 Color="White" 
+                                 Scale="1.5" />
+                <Label Text="Procesando..." 
+                       TextColor="White" 
+                       FontSize="16" 
+                       Margin="0,10,0,0" />
+            </StackLayout>
+        </Frame>
+
+        <!-- Main Content -->
+        <ScrollView Padding="20">
+            <StackLayout Spacing="20">
+
+                <!-- Header -->
+                <StackLayout Orientation="Horizontal" Spacing="10">
+                    <Label Text="📋" FontSize="30" VerticalOptions="Center" />
+                    <StackLayout>
+                        <Label Text="Detalles de Cita" 
+                               FontSize="24" 
+                               FontAttributes="Bold" 
+                               TextColor="#2E7D32" />
+                        <Label Text="Información completa del paciente" 
+                               FontSize="14" 
+                               TextColor="#666" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Message -->
+                <Frame IsVisible="{Binding Message, Converter={StaticResource StringToBoolConverter}}"
+                       BackgroundColor="{Binding IsSuccess, Converter={StaticResource BoolToSuccessColorConverter}}"
+                       Padding="15"
+                       CornerRadius="8">
+                    <Label Text="{Binding Message}" 
+                           TextColor="White" 
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                </Frame>
+
+                <!-- Appointment Details -->
+                <Frame BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="15" 
+                       Padding="20"
+                       IsVisible="{Binding Appointment, Converter={StaticResource NullToBoolConverter}}">
+
+                    <StackLayout Spacing="15">
+
+                        <!-- Patient Info -->
+                        <Label Text="👤 Información del Paciente" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               TextColor="#4CAF50" />
+
+                        <Grid RowDefinitions="Auto,Auto,Auto,Auto" 
+                              ColumnDefinitions="Auto,*" 
+                              RowSpacing="8" 
+                              ColumnSpacing="10">
+
+                            <Label Grid.Row="0" Grid.Column="0" Text="Nombre:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Appointment.NombrePaciente}" TextColor="#666" />
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="Cédula:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Appointment.CedulaPaciente}" TextColor="#666" />
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="Teléfono:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Appointment.TelefonoPaciente}" TextColor="#666" />
+
+                            <Label Grid.Row="3" Grid.Column="0" Text="Email:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Appointment.EmailPaciente}" TextColor="#666" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="LightGray" />
+
+                        <!-- Appointment Info -->
+                        <Label Text="📅 Información de la Cita" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               TextColor="#4CAF50" />
+
+                        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
+                              ColumnDefinitions="Auto,*" 
+                              RowSpacing="8" 
+                              ColumnSpacing="10">
+
+                            <Label Grid.Row="0" Grid.Column="0" Text="Fecha:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Appointment.FechaCita}" TextColor="#666" />
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="Hora:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Appointment.HoraCita}" TextColor="#666" />
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="Tipo:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Appointment.TipoCita}" TextColor="#666" />
+
+                            <Label Grid.Row="3" Grid.Column="0" Text="Estado:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding Appointment.EstadoCita}" TextColor="#666" />
+
+                            <Label Grid.Row="4" Grid.Column="0" Text="Especialidad:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding Appointment.NombreEspecialidad}" TextColor="#666" />
+
+                            <Label Grid.Row="5" Grid.Column="0" Text="Sucursal:" FontAttributes="Bold" TextColor="#333" />
+                            <Label Grid.Row="5" Grid.Column="1" Text="{Binding Appointment.NombreSucursal}" TextColor="#666" />
+                        </Grid>
+
+                        <!-- Reason for Visit -->
+                        <StackLayout IsVisible="{Binding Appointment.MotivoConsulta, Converter={StaticResource StringToBoolConverter}}">
+                            <BoxView HeightRequest="1" BackgroundColor="LightGray" />
+                            <Label Text="💬 Motivo de Consulta" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#4CAF50" />
+                            <Frame BackgroundColor="#F8F9FA" Padding="15" CornerRadius="8">
+                                <Label Text="{Binding Appointment.MotivoConsulta}" 
+                                       TextColor="#333"
+                                       LineBreakMode="WordWrap" />
+                            </Frame>
+                        </StackLayout>
+
+                        <!-- Current Observations -->
+                        <StackLayout IsVisible="{Binding Appointment.Observaciones, Converter={StaticResource StringToBoolConverter}}">
+                            <BoxView HeightRequest="1" BackgroundColor="LightGray" />
+                            <Label Text="📝 Observaciones Actuales" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#4CAF50" />
+                            <Frame BackgroundColor="#E8F5E8" Padding="15" CornerRadius="8">
+                                <Label Text="{Binding Appointment.Observaciones}" 
+                                       TextColor="#333"
+                                       LineBreakMode="WordWrap" />
+                            </Frame>
+                        </StackLayout>
+
+                    </StackLayout>
+                </Frame>
+
+                <!-- Complete Appointment Section -->
+                <Frame BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="15" 
+                       Padding="20"
+                       IsVisible="{Binding CanComplete}">
+
+                    <StackLayout Spacing="20">
+
+                        <Label Text="✅ Completar Cita" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="#4CAF50" 
+                               HorizontalTextAlignment="Center" />
+
+                        <!-- Checkboxes -->
+                        <StackLayout Spacing="15">
+
+                            <!-- Add Observations Checkbox -->
+                            <Frame BackgroundColor="#F8F9FA" 
+                                   Padding="15" 
+                                   CornerRadius="10"
+                                   BorderColor="{Binding AddObservations, Converter={StaticResource BoolToColorConverter}}"
+                                   HasShadow="False">
+                                <StackLayout>
+                                    <StackLayout Orientation="Horizontal" Spacing="10">
+                                        <CheckBox IsChecked="{Binding AddObservations}" 
+                                                  Color="#4CAF50" 
+                                                  Scale="1.2" />
+                                        <Label Text="📝 Agregar observaciones médicas" 
+                                               FontSize="16" 
+                                               FontAttributes="Bold" 
+                                               TextColor="#333"
+                                               VerticalOptions="Center" />
+                                    </StackLayout>
+                                    <Label Text="Añadir comentarios sobre la consulta realizada" 
+                                           FontSize="14" 
+                                           TextColor="#666" 
+                                           Margin="32,5,0,0" />
+                                </StackLayout>
+                            </Frame>
+
+                            <!-- Add Prescription Checkbox -->
+                            <Frame BackgroundColor="#F8F9FA" 
+                                   Padding="15" 
+                                   CornerRadius="10"
+                                   BorderColor="{Binding AddPrescription, Converter={StaticResource BoolToColorConverter}}"
+                                   HasShadow="False">
+                                <StackLayout>
+                                    <StackLayout Orientation="Horizontal" Spacing="10">
+                                        <CheckBox IsChecked="{Binding AddPrescription}" 
+                                                  Color="#4CAF50" 
+                                                  Scale="1.2" />
+                                        <Label Text="💊 Asignar receta médica" 
+                                               FontSize="16" 
+                                               FontAttributes="Bold" 
+                                               TextColor="#333"
+                                               VerticalOptions="Center" />
+                                    </StackLayout>
+                                    <Label Text="Crear y enviar una receta médica al paciente" 
+                                           FontSize="14" 
+                                           TextColor="#666" 
+                                           Margin="32,5,0,0" />
+                                </StackLayout>
+                            </Frame>
+
+                        </StackLayout>
+
+                        <!-- Observations Form -->
+                        <Frame IsVisible="{Binding ShowObservationsForm}"
+                               BackgroundColor="#E8F5E8" 
+                               Padding="20" 
+                               CornerRadius="12"
+                               BorderColor="#4CAF50">
+
+                            <StackLayout Spacing="15">
+                                <Label Text="📝 Observaciones Médicas" 
+                                       FontSize="18" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#2E7D32" />
+
+                                <Label Text="Ingrese sus observaciones sobre la consulta:" 
+                                       FontSize="14" 
+                                       TextColor="#666" />
+
+                                <Editor Text="{Binding Observations}"
+                                        Placeholder="Ejemplo: Paciente presenta mejoría significativa. Se recomienda continuar con el tratamiento y control en 2 semanas..."
+                                        HeightRequest="120"
+                                        BackgroundColor="White"
+                                        TextColor="#333" />
+
+                                <Label Text="💡 Estas observaciones se incluirán en el email enviado al paciente" 
+                                       FontSize="12" 
+                                       TextColor="#666"
+                                       FontStyle="Italic" />
+                            </StackLayout>
+                        </Frame>
+
+                        <!-- Prescription Form -->
+                        <Frame IsVisible="{Binding ShowPrescriptionForm}"
+                               BackgroundColor="#FFF3E0" 
+                               Padding="20" 
+                               CornerRadius="12"
+                               BorderColor="#FF9800">
+
+                            <StackLayout Spacing="15">
+                                <Label Text="💊 Receta Médica" 
+                                       FontSize="18" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#F57C00" />
+
+                                <!-- Medicamento (Required) -->
+                                <StackLayout>
+                                    <Label Text="Medicamento *" TextColor="#333" FontAttributes="Bold" />
+                                    <Entry Text="{Binding Medicamento}" 
+                                           Placeholder="Ej: Paracetamol, Amoxicilina..."
+                                           BackgroundColor="White" />
+                                </StackLayout>
+
+                                <!-- Concentración -->
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <StackLayout Grid.Column="0">
+                                        <Label Text="Concentración" TextColor="#333" FontAttributes="Bold" />
+                                        <Entry Text="{Binding Concentracion}" 
+                                               Placeholder="Ej: 500mg, 250mg..."
+                                               BackgroundColor="White" />
+                                    </StackLayout>
+                                    <StackLayout Grid.Column="1">
+                                        <Label Text="Forma Farmacéutica" TextColor="#333" FontAttributes="Bold" />
+                                        <Picker ItemsSource="{Binding FormasFarmaceuticas}"
+                                                SelectedItem="{Binding FormaFarmaceutica}"
+                                                Title="Seleccionar"
+                                                BackgroundColor="White" />
+                                    </StackLayout>
+                                </Grid>
+
+                                <!-- Dosis (Required) -->
+                                <StackLayout>
+                                    <Label Text="Dosis *" TextColor="#333" FontAttributes="Bold" />
+                                    <Entry Text="{Binding Dosis}" 
+                                           Placeholder="Ej: 1 tableta, 5ml, 2 cápsulas..."
+                                           BackgroundColor="White" />
+                                </StackLayout>
+
+                                <!-- Frecuencia y Duración (Required) -->
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <StackLayout Grid.Column="0">
+                                        <Label Text="Frecuencia *" TextColor="#333" FontAttributes="Bold" />
+                                        <Entry Text="{Binding Frecuencia}" 
+                                               Placeholder="Ej: Cada 8 horas, 2 veces al día..."
+                                               BackgroundColor="White" />
+                                    </StackLayout>
+                                    <StackLayout Grid.Column="1">
+                                        <Label Text="Duración *" TextColor="#333" FontAttributes="Bold" />
+                                        <Entry Text="{Binding Duracion}" 
+                                               Placeholder="Ej: 7 días, 2 semanas..."
+                                               BackgroundColor="White" />
+                                    </StackLayout>
+                                </Grid>
+
+                                <!-- Cantidad (Required) -->
+                                <StackLayout>
+                                    <Label Text="Cantidad *" TextColor="#333" FontAttributes="Bold" />
+                                    <Entry Text="{Binding Cantidad}" 
+                                           Placeholder="Ej: 21 tabletas, 1 frasco de 120ml..."
+                                           BackgroundColor="White" />
+                                </StackLayout>
+
+                                <!-- Indicaciones Especiales -->
+                                <StackLayout>
+                                    <Label Text="Indicaciones Especiales" TextColor="#333" FontAttributes="Bold" />
+                                    <Editor Text="{Binding IndicacionesEspeciales}"
+                                            Placeholder="Ej: Tomar con abundante agua, después de las comidas..."
+                                            HeightRequest="80"
+                                            BackgroundColor="White" />
+                                </StackLayout>
+
+                                <Label Text="📧 La receta será enviada automáticamente por email al paciente con un código único" 
+                                       FontSize="12" 
+                                       TextColor="#666"
+                                       FontStyle="Italic"
+                                       HorizontalTextAlignment="Center" />
+                            </StackLayout>
+                        </Frame>
+
+                        <!-- Complete Button -->
+                        <Button Text="✅ COMPLETAR CITA" 
+                                Command="{Binding CompleteAppointmentCommand}"
+                                IsEnabled="{Binding CanComplete}"
+                                BackgroundColor="#4CAF50" 
+                                TextColor="White" 
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                HeightRequest="60"
+                                CornerRadius="15"
+                                Margin="0,20,0,0" />
+
+                        <Label Text="💡 Al completar la cita se enviará una notificación automática al paciente y al sistema" 
+                               FontSize="12" 
+                               TextColor="#666"
+                               FontStyle="Italic"
+                               HorizontalTextAlignment="Center" />
+
+                    </StackLayout>
+                </Frame>
+
+                <!-- Cannot Complete Message -->
+                <Frame BackgroundColor="#FFEBEE" 
+                       Padding="20" 
+                       CornerRadius="12"
+                       BorderColor="#F44336"
+                       IsVisible="{Binding CanComplete, Converter={StaticResource InvertedBoolConverter}}">
+                    <StackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="⚠️" FontSize="30" HorizontalOptions="Center" />
+                        <Label Text="No se puede completar esta cita" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="#D32F2F"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Solo se pueden completar citas confirmadas o en curso" 
+                               FontSize="14" 
+                               TextColor="#666"
+                               HorizontalTextAlignment="Center" />
+                    </StackLayout>
+                </Frame>
+
+                <!-- Back Button -->
+                <Button Text="← Volver a la Lista" 
+                        Command="{Binding BackCommand}"
+                        BackgroundColor="Transparent" 
+                        TextColor="#666" 
+                        BorderColor="#666"
+                        BorderWidth="1"
+                        CornerRadius="10"
+                        Margin="0,20,0,40" />
+
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
