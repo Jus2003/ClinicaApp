@@ -4,13 +4,16 @@ using System.Windows.Input;
 using ClinicaApp.Models;
 using ClinicaApp.Helpers;
 using ClinicaApp.Views;
+using ClinicaApp.Services;
 
 namespace ClinicaApp.ViewModels
 {
     public class MainPageViewModel : INotifyPropertyChanged
     {
+        private readonly ApiService _apiService; // 🆕 NUEVO
         public MainPageViewModel()
         {
+            _apiService = new ApiService(); // 🆕 NUEV
             LogoutCommand = new Command(async () => await LogoutAsync());
             NavigateCommand = new Command<SubMenu>(async (submenu) => await NavigateToSubmenuAsync(submenu));
             LoadUserData();
@@ -45,6 +48,10 @@ namespace ClinicaApp.ViewModels
 
         private async Task LogoutAsync()
         {
+            // 🆕 NUEVA LÍNEA: Forzar limpieza completa antes de navegar
+            Preferences.Clear();
+
+            // Tu código existente
             SessionManager.ClearSession();
             await Shell.Current.GoToAsync("//login");
         }

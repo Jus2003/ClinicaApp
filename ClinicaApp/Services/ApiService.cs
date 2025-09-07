@@ -8,7 +8,7 @@ namespace ClinicaApp.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "https://824a27e91925.ngrok-free.app/citas-medicas-api/public";
+        private readonly string _baseUrl = "https://f638f544f3da.ngrok-free.app/citas-medicas-api/public";
 
         public ApiService()
         {
@@ -80,6 +80,48 @@ namespace ClinicaApp.Services
                 {
                     Success = false,
                     Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        // Agregar este método a tu clase ApiService existente
+        public async Task<ApiResponse<object>> LogoutAsync()
+        {
+            try
+            {
+                var response = await _httpClient.PostAsync($"{_baseUrl}/auth/logout", null);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine($"Logout Response Status: {response.StatusCode}");
+                System.Diagnostics.Debug.WriteLine($"Logout Response Content: {responseContent}");
+
+                var deserializeOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return JsonSerializer.Deserialize<ApiResponse<object>>(responseContent, deserializeOptions);
+                }
+                else
+                {
+                    return new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Error en logout del servidor",
+                        Status = (int)response.StatusCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en logout: {ex.Message}");
+                return new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = $"Error de conexión en logout: {ex.Message}",
                     Status = 500
                 };
             }

@@ -79,6 +79,10 @@ namespace ClinicaApp.ViewModels
 
             try
             {
+                // 🆕 NUEVA LÍNEA: Limpiar cualquier dato persistente
+                Preferences.Clear();
+
+                // Tu código existente sin cambios
                 var response = await _apiService.LoginAsync(Usuario, Password);
 
                 if (response.Success)
