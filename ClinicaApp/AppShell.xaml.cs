@@ -24,6 +24,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("triajedigital", typeof(TriajeDigitalPage));
         Routing.RegisterRoute("citadetalle", typeof(CitaDetallePage));
         Routing.RegisterRoute("triajeprogress", typeof(TriajeProgressPage));
+        Routing.RegisterRoute("triajeview", typeof(Views.TriajeViewPage));
     }
 
 }

@@ -48,14 +48,52 @@ namespace ClinicaApp.ViewModels
 
         private async Task VerTriajeDelPacienteAsync()
         {
-            var parameters = new Dictionary<string, object>
-    {
-        { "CitaId", IdCita }, // El ID de la cita actual
-        { "TriajeCompleto", true }, // Siempre en modo lectura para el médico
-        { "EsMedico", true } // Opcional: para indicar que es vista de médico
-    };
+            try
+            {
+                IsLoading = true;
+                Message = "Verificando triaje del paciente...";
 
-            await Shell.Current.GoToAsync("triajeprogress", parameters);
+                // Primero verificar si el triaje está completado
+                var verificacion = await _apiService.VerificarEstadoTriajeAsync(AppointmentId);
+
+                if (!verificacion.Success)
+                {
+                    await Shell.Current.DisplayAlert("Error",
+                        "No se pudo verificar el estado del triaje", "OK");
+                    return;
+                }
+
+                if (!verificacion.Data.TriajeRealizado)
+                {
+                    await Shell.Current.DisplayAlert("Triaje Pendiente",
+                        "El paciente aún no ha completado el triaje.", "OK");
+                    return;
+                }
+
+                if (!verificacion.Data.TriajeCompleto)
+                {
+                    await Shell.Current.DisplayAlert("Triaje Incompleto",
+                        "El paciente ha iniciado el triaje pero no lo ha completado.", "OK");
+                    return;
+                }
+
+                // Si el triaje está completo, navegar a la vista del triaje
+                var parameters = new Dictionary<string, object>
+        {
+            { "CitaId", AppointmentId }
+        };
+
+                await Shell.Current.GoToAsync("triajeview", parameters);
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error",
+                    $"Error verificando triaje: {ex.Message}", "OK");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         public int AppointmentId

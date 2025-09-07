@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ClinicaApp.Views.TriajeViewPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ClinicaApp.ViewModels"
+             xmlns:models="clr-namespace:ClinicaApp.Models"
+             x:DataType="viewmodels:TriajeViewViewModel"
+             Title="Triaje del Paciente">
+
+    <ScrollView Padding="20">
+        <StackLayout Spacing="20">
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsVisible="{Binding IsLoading}" 
+                              IsRunning="{Binding IsLoading}" 
+                              Color="#4CAF50" />
+
+            <!-- Header -->
+            <Frame BackgroundColor="#4CAF50" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20">
+                <StackLayout>
+                    <Label Text="📋 Triaje del Paciente" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           TextColor="White" 
+                           HorizontalOptions="Center" />
+
+                    <!-- Info de la cita -->
+                    <StackLayout IsVisible="{Binding Triaje, Converter={StaticResource NullToBoolConverter}}">
+                        <Label Text="{Binding Triaje.InfoCita.Paciente, StringFormat='Paciente: {0}'}" 
+                               TextColor="White" FontSize="16" />
+                        <Label Text="{Binding Triaje.InfoCita.FechaCita, StringFormat='Fecha: {0}'}" 
+                               TextColor="White" />
+                        <Label Text="{Binding Triaje.InfoCita.HoraCita, StringFormat='Hora: {0}'}" 
+                               TextColor="White" />
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+
+            <!-- Estadísticas -->
+            <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="15" 
+                   Padding="20"
+                   IsVisible="{Binding Triaje, Converter={StaticResource NullToBoolConverter}}">
+                <StackLayout>
+                    <Label Text="📊 Estadísticas del Triaje" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="#4CAF50" />
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
+                        <Label Grid.Row="0" Grid.Column="0" 
+                               Text="Preguntas respondidas:" 
+                               FontAttributes="Bold" />
+                        <Label Grid.Row="0" Grid.Column="1" 
+                               Text="{Binding Triaje.Estadisticas.TotalPreguntasRespondidas}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" 
+                               Text="Obligatorias completadas:" 
+                               FontAttributes="Bold" />
+                        <Label Grid.Row="1" Grid.Column="1" 
+                               Text="{Binding Triaje.Estadisticas.ObligatoriasRespondidas}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" 
+                               Text="Tipo de triaje:" 
+                               FontAttributes="Bold" />
+                        <Label Grid.Row="2" Grid.Column="1" 
+                               Text="{Binding Triaje.Estadisticas.TipoTriaje}" />
+                    </Grid>
+                </StackLayout>
+            </Frame>
+
+            <!-- Respuestas -->
+            <Label Text="📝 Respuestas del Triaje" 
+       FontSize="20" 
+       FontAttributes="Bold" 
+       TextColor="#4CAF50" 
+       IsVisible="{Binding Respuestas.Count, Converter={StaticResource IntToBoolConverter}}" />
+
+            <CollectionView ItemsSource="{Binding Respuestas}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:RespuestaTriajeCompleta">
+                        <Frame BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="10" 
+                   Padding="15" 
+                   Margin="0,5">
+                            <StackLayout>
+                                <Label Text="{Binding Pregunta}" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#333" />
+
+                                <Frame BackgroundColor="#E8F5E8" 
+                           Padding="10" 
+                           CornerRadius="5">
+                                    <Label Text="{Binding Respuesta}" 
+                               FontSize="14" 
+                               TextColor="#2E7D32" />
+                                </Frame>
+
+                                <Label Text="{Binding FechaRespuesta, StringFormat='Respondido: {0}'}" 
+                           FontSize="12" 
+                           TextColor="#666" />
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Botón Volver -->
+            <Button Text="← Volver" 
+                    Command="{Binding BackCommand}"
+                    BackgroundColor="#2196F3" 
+                    TextColor="White" 
+                    CornerRadius="10" 
+                    Margin="0,20,0,0" />
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
