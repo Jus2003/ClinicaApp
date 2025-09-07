@@ -87,6 +87,9 @@
 
                         <BoxView HeightRequest="1" BackgroundColor="LightGray" />
 
+                        
+
+
                         <!-- Appointment Info -->
                         <Label Text="📅 Información de la Cita" 
                                FontSize="18" 
@@ -144,6 +147,12 @@
                                        LineBreakMode="WordWrap" />
                             </Frame>
                         </StackLayout>
+
+                        <Button Text="Ver Triaje del Paciente" 
+                            Command="{Binding VerTriajeCommand}" 
+                            BackgroundColor="#1976D2" 
+                            TextColor="White" 
+                            CornerRadius="8"/>
 
                     </StackLayout>
                 </Frame>

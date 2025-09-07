@@ -61,6 +61,7 @@ namespace ClinicaApp.ViewModels
             }
         }
 
+
         public int CitaId
         {
             get => _citaId;

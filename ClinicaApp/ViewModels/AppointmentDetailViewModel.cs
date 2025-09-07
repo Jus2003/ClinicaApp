@@ -28,18 +28,34 @@ namespace ClinicaApp.ViewModels
         private string _duracion;
         private string _cantidad;
         private string _indicacionesEspeciales;
+        public ICommand VerTriajeCommand { get; }
+
 
         public AppointmentDetailViewModel()
         {
             _apiService = new ApiService();
             CompleteAppointmentCommand = new Command(async () => await CompleteAppointmentAsync(), () => CanComplete);
             BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
+            VerTriajeCommand = new Command(async () => await VerTriajeDelPacienteAsync());
+
 
             FormasFarmaceuticas = new List<string>
             {
                 "Tabletas", "Cápsulas", "Jarabe", "Gotas", "Crema", "Ungüento",
                 "Inyección", "Suspensión", "Granulado", "Aerosol"
             };
+        }
+
+        private async Task VerTriajeDelPacienteAsync()
+        {
+            var parameters = new Dictionary<string, object>
+    {
+        { "CitaId", IdCita }, // El ID de la cita actual
+        { "TriajeCompleto", true }, // Siempre en modo lectura para el médico
+        { "EsMedico", true } // Opcional: para indicar que es vista de médico
+    };
+
+            await Shell.Current.GoToAsync("triajeprogress", parameters);
         }
 
         public int AppointmentId
