@@ -1,12 +1,15 @@
 ﻿// Models/TriajeModels.cs
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 using static ClinicaApp.Models.CitaDetalle;
 
 namespace ClinicaApp.Models
 {
     // Modelo para las preguntas del triaje
-    public class PreguntaTriaje
+    public class PreguntaTriaje : INotifyPropertyChanged
     {
+        private string _respuesta = "";
+
         [JsonPropertyName("id_pregunta")]
         public int IdPregunta { get; set; }
 
@@ -28,11 +31,27 @@ namespace ClinicaApp.Models
         [JsonPropertyName("opciones")]
         public object Opciones { get; set; }
 
-        // Propiedades auxiliares para la UI
-        public string Respuesta { get; set; } = "";
+        // ✅ Hacer que Respuesta notifique cambios
+        public string Respuesta
+        {
+            get => _respuesta;
+            set
+            {
+                _respuesta = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool EsObligatoria => Obligatoria == 1;
         public List<string> OpcionesLista { get; set; } = new();
         public OpcionesEscala OpcionesEscalaObj { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public class OpcionesEscala

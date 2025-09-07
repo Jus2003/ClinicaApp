@@ -1,6 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿// ViewModels/ResponderTriajeViewModel.cs
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Windows.Input;
 using ClinicaApp.Helpers;
@@ -112,8 +112,13 @@ namespace ClinicaApp.ViewModels
             {
                 if (InfoCita == null) return "";
 
-                var fecha = DateTime.Parse(InfoCita.FechaCita).ToString("dd/MM/yyyy");
-                var hora = TimeSpan.Parse(InfoCita.HoraCita).ToString(@"hh\:mm");
+                var fecha = DateTime.TryParse(InfoCita.FechaCita, out var fechaParsed)
+                    ? fechaParsed.ToString("dd/MM/yyyy")
+                    : InfoCita.FechaCita;
+
+                var hora = TimeSpan.TryParse(InfoCita.HoraCita, out var horaParsed)
+                    ? horaParsed.ToString(@"hh\:mm")
+                    : InfoCita.HoraCita;
 
                 return $"Cita: {fecha} - {hora}\n" +
                        $"Dr(a). {InfoCita.Medico}\n" +
@@ -127,9 +132,9 @@ namespace ClinicaApp.ViewModels
             {
                 if (!HasPreguntas) return "";
 
-                var respondidas = Preguntas.Count(p => p.TieneRespuesta);
-                var obligatorias = Preguntas.Count(p => p.Obligatoria);
-                var obligatoriasRespondidas = Preguntas.Count(p => p.Obligatoria && p.TieneRespuesta);
+                var respondidas = Preguntas.Count(p => !string.IsNullOrWhiteSpace(p.Respuesta));
+                var obligatorias = Preguntas.Count(p => p.EsObligatoria);
+                var obligatoriasRespondidas = Preguntas.Count(p => p.EsObligatoria && !string.IsNullOrWhiteSpace(p.Respuesta));
 
                 return $"Respondidas: {respondidas}/{Preguntas.Count} | Obligatorias: {obligatoriasRespondidas}/{obligatorias}";
             }
@@ -141,7 +146,7 @@ namespace ClinicaApp.ViewModels
             {
                 if (!HasPreguntas) return 0;
 
-                var respondidas = Preguntas.Count(p => p.TieneRespuesta);
+                var respondidas = Preguntas.Count(p => !string.IsNullOrWhiteSpace(p.Respuesta));
                 return (double)respondidas / Preguntas.Count;
             }
         }
@@ -153,7 +158,7 @@ namespace ClinicaApp.ViewModels
                 if (!HasPreguntas || IsLoading || TriajeCompletado) return false;
 
                 // Verificar que todas las preguntas obligatorias estén respondidas
-                var obligatoriasRespondidas = Preguntas.Where(p => p.Obligatoria).All(p => p.TieneRespuesta);
+                var obligatoriasRespondidas = Preguntas.Where(p => p.EsObligatoria).All(p => !string.IsNullOrWhiteSpace(p.Respuesta));
                 return obligatoriasRespondidas;
             }
         }
@@ -169,27 +174,19 @@ namespace ClinicaApp.ViewModels
                 var estadoResponse = await _apiService.VerificarEstadoTriajeAsync(_idCita);
                 if (estadoResponse?.Success == true && estadoResponse.Data != null)
                 {
-                    var data = estadoResponse.Data.Value;
-                    var yaRealizado = data.GetProperty("triaje_realizado").GetBoolean();
+                    var estadoTriaje = estadoResponse.Data;
 
-                    if (yaRealizado)
+                    if (estadoTriaje.TriajeRealizado)
                     {
                         TriajeCompletado = true;
                         ShowSuccess("El triaje para esta cita ya fue completado anteriormente");
                         return;
                     }
+
                     // Cargar info de la cita
-                    if (data.TryGetProperty("info_cita", out JsonElement citaInfo)) // 👈 CAMBIAR var por JsonElement
+                    if (estadoTriaje.InfoCita != null)
                     {
-                        InfoCita = new InfoCitaTriaje
-                        {
-                            FechaCita = citaInfo.GetProperty("fecha_cita").GetString(),
-                            HoraCita = citaInfo.GetProperty("hora_cita").GetString(),
-                            EstadoCita = citaInfo.GetProperty("estado_cita").GetString(),
-                            Paciente = citaInfo.TryGetProperty("paciente", out var pac) ? pac.GetString() : "",
-                            Medico = citaInfo.TryGetProperty("medico", out var med) ? med.GetString() : "",
-                            Especialidad = citaInfo.TryGetProperty("especialidad", out var esp) ? esp.GetString() : ""
-                        };
+                        InfoCita = estadoTriaje.InfoCita;
                     }
                 }
 
@@ -201,6 +198,9 @@ namespace ClinicaApp.ViewModels
 
                     foreach (var pregunta in preguntasResponse.Data.OrderBy(p => p.Orden))
                     {
+                        // Procesar opciones según el tipo
+                        ProcessarOpcionesPregunta(pregunta);
+
                         // Suscribirse a cambios en las respuestas para actualizar el progreso
                         pregunta.PropertyChanged += Pregunta_PropertyChanged;
                         Preguntas.Add(pregunta);
@@ -228,10 +228,35 @@ namespace ClinicaApp.ViewModels
             }
         }
 
+        private void ProcessarOpcionesPregunta(PreguntaTriaje pregunta)
+        {
+            if (pregunta.Opciones == null) return;
+
+            try
+            {
+                if (pregunta.TipoPregunta == "multiple" && pregunta.Opciones is JsonElement element && element.ValueKind == JsonValueKind.Array)
+                {
+                    pregunta.OpcionesLista = JsonSerializer.Deserialize<List<string>>(element.GetRawText());
+                }
+                else if (pregunta.TipoPregunta == "escala")
+                {
+                    if (pregunta.Opciones is JsonElement escalaElement)
+                    {
+                        pregunta.OpcionesEscalaObj = JsonSerializer.Deserialize<OpcionesEscala>(
+                            escalaElement.GetRawText(),
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error procesando opciones: {ex.Message}");
+            }
+        }
+
         private void Pregunta_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(PreguntaTriaje.Respuesta) ||
-                e.PropertyName == nameof(PreguntaTriaje.TieneRespuesta))
+            if (e.PropertyName == nameof(PreguntaTriaje.Respuesta))
             {
                 OnPropertyChanged(nameof(ProgresoTexto));
                 OnPropertyChanged(nameof(ProgresoDecimal));
@@ -241,15 +266,8 @@ namespace ClinicaApp.ViewModels
 
         private void SeleccionarSiNo(string opcion)
         {
-            // Encontrar la pregunta activa de tipo sino
-            var preguntaSiNo = Preguntas.FirstOrDefault(p => p.EsSiNo &&
-                Application.Current.MainPage.FindByName("SliderEscala") != null);
-
-            // Para simplificar, usamos el parámetro para todas las preguntas sino
-            // En una implementación real, necesitarías identificar qué pregunta específica
-
-            // Por ahora, buscaremos la primera pregunta SiNo sin respuesta
-            var pregunta = Preguntas.FirstOrDefault(p => p.EsSiNo && string.IsNullOrEmpty(p.Respuesta));
+            // Buscar la primera pregunta SiNo sin respuesta
+            var pregunta = Preguntas.FirstOrDefault(p => p.TipoPregunta == "sino" && string.IsNullOrEmpty(p.Respuesta));
             if (pregunta != null)
             {
                 pregunta.Respuesta = opcion;
@@ -264,7 +282,7 @@ namespace ClinicaApp.ViewModels
                 Message = "Enviando triaje...";
 
                 // Validar respuestas obligatorias
-                var obligatoriasSinResponder = Preguntas.Where(p => p.Obligatoria && !p.TieneRespuesta).ToList();
+                var obligatoriasSinResponder = Preguntas.Where(p => p.EsObligatoria && string.IsNullOrWhiteSpace(p.Respuesta)).ToList();
                 if (obligatoriasSinResponder.Any())
                 {
                     var preguntasFaltantes = string.Join(", ", obligatoriasSinResponder.Select(p => p.Pregunta));
@@ -274,7 +292,7 @@ namespace ClinicaApp.ViewModels
 
                 // Preparar respuestas
                 var respuestas = new List<RespuestaTriaje>();
-                foreach (var pregunta in Preguntas.Where(p => p.TieneRespuesta))
+                foreach (var pregunta in Preguntas.Where(p => !string.IsNullOrWhiteSpace(p.Respuesta)))
                 {
                     var respuesta = new RespuestaTriaje
                     {
@@ -283,22 +301,28 @@ namespace ClinicaApp.ViewModels
                     };
 
                     // Agregar valor numérico si aplica
-                    if (pregunta.EsEscala && pregunta.ValorNumerico.HasValue)
+                    if (pregunta.TipoPregunta == "escala" && decimal.TryParse(pregunta.Respuesta, out decimal valorEscala))
                     {
-                        respuesta.ValorNumerico = pregunta.ValorNumerico.Value;
-                        respuesta.Respuesta = pregunta.ValorNumerico.Value.ToString("F0");
+                        respuesta.ValorNumerico = valorEscala;
                     }
-                    else if (pregunta.EsNumero && double.TryParse(pregunta.Respuesta, out double valor))
+                    else if (pregunta.TipoPregunta == "numero" && decimal.TryParse(pregunta.Respuesta, out decimal valorNumero))
                     {
-                        respuesta.ValorNumerico = valor;
+                        respuesta.ValorNumerico = valorNumero;
                     }
 
                     respuestas.Add(respuesta);
                 }
 
+                // Crear request
+                var triajeRequest = new TriajeRequest
+                {
+                    IdCita = _idCita,
+                    TipoTriaje = "digital",
+                    Respuestas = respuestas
+                };
+
                 // Enviar triaje
-                var usuario = SessionManager.CurrentUser;
-                var response = await _apiService.EnviarRespuestasTriajeAsync(_idCita, respuestas, usuario?.Id ?? 1);
+                var response = await _apiService.ResponderTriajeAsync(triajeRequest);
 
                 if (response?.Success == true)
                 {
