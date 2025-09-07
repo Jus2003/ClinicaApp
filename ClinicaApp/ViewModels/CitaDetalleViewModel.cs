@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using ClinicaApp.Models;
 using ClinicaApp.Services;
+using static ClinicaApp.Models.CitaDetalle;
 
 namespace ClinicaApp.ViewModels
 {

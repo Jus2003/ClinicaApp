@@ -1,5 +1,6 @@
 ﻿// Models/TriajeModels.cs
 using System.Text.Json.Serialization;
+using static ClinicaApp.Models.CitaDetalle;
 
 namespace ClinicaApp.Models
 {
@@ -76,7 +77,7 @@ namespace ClinicaApp.Models
     }
 
     // Modelo para la respuesta completa del triaje
-    public class RespuestaTriajeCompleta
+    public class RespuestaTriajeCompleta : RespuestaTriajeDetallada
     {
         [JsonPropertyName("id_respuesta")]
         public int IdRespuesta { get; set; }
@@ -315,6 +316,39 @@ namespace ClinicaApp.Models
 
             [JsonPropertyName("info_cita")]
             public InfoCitaTriaje InfoCita { get; set; }
+        }
+
+        public class RespuestaTriajeDetallada
+        {
+            [JsonPropertyName("id_respuesta")]
+            public int IdRespuesta { get; set; }
+
+            [JsonPropertyName("id_cita")]
+            public int IdCita { get; set; }
+
+            [JsonPropertyName("id_pregunta")]
+            public int IdPregunta { get; set; }
+
+            [JsonPropertyName("respuesta")]
+            public string Respuesta { get; set; }
+
+            [JsonPropertyName("valor_numerico")]
+            public decimal? ValorNumerico { get; set; }
+
+            [JsonPropertyName("fecha_respuesta")]
+            public string FechaRespuesta { get; set; }
+
+            [JsonPropertyName("tipo_triaje")]
+            public string TipoTriaje { get; set; }
+
+            [JsonPropertyName("pregunta")]
+            public string Pregunta { get; set; }
+
+            [JsonPropertyName("tipo_pregunta")]
+            public string TipoPregunta { get; set; }
+
+            [JsonPropertyName("opciones")]
+            public object Opciones { get; set; }
         }
     }
 }

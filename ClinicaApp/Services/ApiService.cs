@@ -2,6 +2,7 @@
 using System.Text.Json;
 using ClinicaApp.Helpers;
 using ClinicaApp.Models;
+using static ClinicaApp.Models.CitaDetalle;
 
 namespace ClinicaApp.Services
 {
@@ -1230,7 +1231,42 @@ namespace ClinicaApp.Services
             }
         }
 
+        public async Task<ApiResponse<TriajeCompletadoResponse>> GetTriajePorCitaAsync(int idCita)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/triaje/cita/{idCita}");
+                var responseContent = await response.Content.ReadAsStringAsync();
 
+                if (response.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    return JsonSerializer.Deserialize<ApiResponse<TriajeCompletadoResponse>>(responseContent, options);
+                }
+                else
+                {
+                    return new ApiResponse<TriajeCompletadoResponse>
+                    {
+                        Success = false,
+                        Message = $"Error del servidor: {response.StatusCode}",
+                        Status = (int)response.StatusCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<TriajeCompletadoResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
 
 
         // ✅ AGREGAR ESTOS MÉTODOS AL ApiService EXISTENTE

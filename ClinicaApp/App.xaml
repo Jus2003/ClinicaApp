@@ -13,7 +13,7 @@
             <helpers:SelectedItemBackgroundConverter x:Key="SelectedItemBackgroundConverter" />
             <helpers:BoolToSuccessColorConverter x:Key="BoolToSuccessColorConverter" />
             <helpers:StringToBoolConverter x:Key="StringToBoolConverter" />
-            
+
             <!-- ✅ NUEVOS CONVERTERS PARA TRIAJE -->
             <helpers:IsNotNullConverter x:Key="IsNotNullConverter" />
             <helpers:StringEqualConverter x:Key="StringEqualConverter" />

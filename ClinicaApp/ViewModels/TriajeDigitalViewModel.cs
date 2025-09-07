@@ -15,8 +15,6 @@ namespace ClinicaApp.ViewModels
         private bool _isRefreshing;
         private string _message;
         private bool _hasCitas;
-        public ICommand SelectOptionCommand { get; }
-
 
         public TriajeDigitalViewModel()
         {
@@ -25,20 +23,8 @@ namespace ClinicaApp.ViewModels
             LoadCitasCommand = new Command(async () => await LoadCitasAsync());
             RefreshCommand = new Command(async () => await RefreshCitasAsync());
             CitaSelectedCommand = new Command<CitaDetalle>(async (cita) => await NavigateToCitaDetalleAsync(cita));
-            SelectOptionCommand = new Command<string>((option) => SelectOption(option));
-
 
             LoadCitasCommand.Execute(null);
-        }
-
-        private void SelectOption(string option)
-        {
-            if (CurrentQuestion != null && !IsReadOnly)
-            {
-                CurrentQuestion.Respuesta = option;
-                OnPropertyChanged(nameof(CurrentQuestion));
-                UpdateNavigationButtons();
-            }
         }
 
         public ObservableCollection<CitaDetalle> Citas { get; set; } = new ObservableCollection<CitaDetalle>();
@@ -89,7 +75,7 @@ namespace ClinicaApp.ViewModels
 
         private async Task LoadCitasAsync()
         {
-            if (!UserSession.IsPaciente())
+            if (!IsPaciente())
             {
                 Message = "Debe iniciar sesión como paciente para ver las citas";
                 return;
@@ -100,7 +86,7 @@ namespace ClinicaApp.ViewModels
 
             try
             {
-                var pacienteId = UserSession.GetPacienteId();
+                var pacienteId = GetPacienteId();
                 var response = await _apiService.GetCitasPacienteAsync(pacienteId);
 
                 if (response.Success && response.Data?.Citas != null)
@@ -152,6 +138,17 @@ namespace ClinicaApp.ViewModels
             };
 
             await Shell.Current.GoToAsync("citadetalle", parameters);
+        }
+
+        // Helper methods para trabajar con SessionManager
+        private bool IsPaciente()
+        {
+            return SessionManager.CurrentUser?.Rol?.Equals("Paciente", StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        private int GetPacienteId()
+        {
+            return SessionManager.CurrentUser?.Id ?? 0;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
