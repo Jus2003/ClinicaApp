@@ -15,9 +15,6 @@
         <ShellContent Title="Principal" 
                       ContentTemplate="{DataTemplate views:MainPage}" 
                       Route="main" />
-        <ShellContent Title="Atender Pacientes"
-              Route="AttendPatientsPage"
-              ContentTemplate="{DataTemplate views:AttendPatientsPage}" />
     </TabBar>
 
 </Shell>

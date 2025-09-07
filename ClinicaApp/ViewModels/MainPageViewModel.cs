@@ -48,12 +48,40 @@ namespace ClinicaApp.ViewModels
 
         private async Task LogoutAsync()
         {
-            // 🆕 NUEVA LÍNEA: Forzar limpieza completa antes de navegar
-            Preferences.Clear();
+            try
+            {
+                // 1. Llamar al API de logout
+                var logoutResponse = await _apiService.LogoutAsync();
 
-            // Tu código existente
-            SessionManager.ClearSession();
+                // 2. Limpiar sesión local
+                SessionManager.ClearSession();
+
+                // 3. FORZAR LIMPIEZA COMPLETA DE LA APP
+                await ForceAppResetAsync();
+
+            }
+            catch (Exception ex)
+            {
+                // Si hay error, igual limpiar la sesión
+                SessionManager.ClearSession();
+                await ForceAppResetAsync();
+            }
+        }
+
+        private async Task ForceAppResetAsync()
+        {
+            // Limpiar todos los ViewModels y forzar reinicio de la app
+            Application.Current.MainPage = new AppShell();
+
+            // Navegar al login
             await Shell.Current.GoToAsync("//login");
+        }
+
+        private async Task ClearAllViewModelsAsync()
+        {
+            // Limpiar cualquier caché de ViewModels que pueda existir
+            // Esto fuerza a que se recarguen los datos en el próximo login
+            Application.Current.MainPage = null;
         }
 
         // En MainPageViewModel.cs, actualizar el método NavigateToSubmenuAsync:
