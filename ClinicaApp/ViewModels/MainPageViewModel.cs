@@ -56,6 +56,8 @@ namespace ClinicaApp.ViewModels
             await Shell.Current.GoToAsync("//login");
         }
 
+        // En MainPageViewModel.cs, actualizar el método NavigateToSubmenuAsync:
+
         private async Task NavigateToSubmenuAsync(SubMenu submenu)
         {
             if (submenu != null)
@@ -78,11 +80,11 @@ namespace ClinicaApp.ViewModels
                     case "citas/agenda":
                         await Shell.Current.GoToAsync("mi-agenda");
                         break;
-                    case "consultas/triaje":
-                        await Shell.Current.GoToAsync("ResponderTriajePage");
-                        break;
                     case "consultas/atender":  // ✅ AGREGAR ESTA LÍNEA
                         await Shell.Current.GoToAsync("AttendPatientsPage");
+                        break;
+                    case "consultas/triaje":  // ✅ NUEVA LÍNEA PARA TRIAJE DIGITAL
+                        await Shell.Current.GoToAsync("triajedigital");
                         break;
                     default:
                         await Shell.Current.DisplayAlert("Navegación",

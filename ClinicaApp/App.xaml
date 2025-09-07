@@ -3,19 +3,24 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:helpers="clr-namespace:ClinicaApp.Helpers">
-
     <Application.Resources>
         <ResourceDictionary>
+            <!-- Converters existentes -->
             <helpers:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <helpers:StringNotNullOrEmptyConverter x:Key="StringNotNullOrEmptyConverter" />
             <helpers:BoolToColorConverter x:Key="BoolToColorConverter" />
             <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
             <helpers:SelectedItemBackgroundConverter x:Key="SelectedItemBackgroundConverter" />
-
-            <!-- ✅ AGREGAR ESTOS NUEVOS CONVERTIDORES -->
             <helpers:BoolToSuccessColorConverter x:Key="BoolToSuccessColorConverter" />
             <helpers:StringToBoolConverter x:Key="StringToBoolConverter" />
+            
+            <!-- ✅ NUEVOS CONVERTERS PARA TRIAJE -->
+            <helpers:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <helpers:StringEqualConverter x:Key="StringEqualConverter" />
+            <helpers:StringEqualToColorConverter x:Key="StringEqualToColorConverter" />
+            <helpers:StringEqualToBorderColorConverter x:Key="StringEqualToBorderColorConverter" />
+            <helpers:StringToDoubleConverter x:Key="StringToDoubleConverter" />
+            <helpers:BoolToStringConverter x:Key="BoolToStringConverter" />
         </ResourceDictionary>
     </Application.Resources>
-
 </Application>

@@ -1,0 +1,237 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ClinicaApp.Views.TriajeDigitalPage"
+             Title="Triaje Digital"
+             BackgroundColor="#F5F5F5">
+
+    <Grid>
+        <!-- Loading Overlay -->
+        <Grid IsVisible="{Binding IsLoading}" 
+              BackgroundColor="#80000000" 
+              ZIndex="999">
+            <StackLayout VerticalOptions="Center" 
+                        HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="True" 
+                                 Color="White" 
+                                 Scale="1.5"/>
+                <Label Text="Cargando citas..." 
+                       TextColor="White" 
+                       FontSize="16" 
+                       HorizontalTextAlignment="Center"/>
+            </StackLayout>
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView>
+            <StackLayout Padding="20" Spacing="20">
+
+                <!-- Header -->
+                <Frame BackgroundColor="White" 
+                       HasShadow="True" 
+                       CornerRadius="10" 
+                       Padding="20">
+                    <StackLayout>
+                        <Label Text="🩺 Triaje Digital" 
+                               FontSize="24" 
+                               FontAttributes="Bold" 
+                               TextColor="#2E7D32" 
+                               HorizontalTextAlignment="Center"/>
+                        <Label Text="Complete el triaje digital antes de su cita médica" 
+                               FontSize="14" 
+                               TextColor="#666" 
+                               HorizontalTextAlignment="Center" 
+                               Margin="0,10,0,0"/>
+                    </StackLayout>
+                </Frame>
+
+                <!-- Error Message -->
+                <Frame IsVisible="{Binding Message, Converter={StaticResource StringToBoolConverter}}" 
+                       BackgroundColor="#FFEBEE" 
+                       BorderColor="#F44336" 
+                       CornerRadius="8" 
+                       Padding="15">
+                    <Label Text="{Binding Message}" 
+                           TextColor="#C62828" 
+                           FontSize="14" 
+                           HorizontalTextAlignment="Center"/>
+                </Frame>
+
+                <!-- Refresh Button -->
+                <Button Text="🔄 Actualizar" 
+                        Command="{Binding RefreshCommand}" 
+                        BackgroundColor="#1976D2" 
+                        TextColor="White" 
+                        CornerRadius="8" 
+                        Padding="0,12"/>
+
+                <!-- Citas List -->
+                <RefreshView IsRefreshing="{Binding IsRefreshing}" 
+                            Command="{Binding RefreshCommand}">
+
+                    <CollectionView ItemsSource="{Binding Citas}" 
+                                   IsVisible="{Binding HasCitas}"
+                                   SelectionMode="None">
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="0,5">
+                                    <Frame BackgroundColor="White" 
+                                           HasShadow="True" 
+                                           CornerRadius="12" 
+                                           Padding="0">
+
+                                        <Grid>
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CitaSelectedCommand}" 
+                                                                     CommandParameter="{Binding}"/>
+                                            </Grid.GestureRecognizers>
+
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Header -->
+                                            <Grid Grid.Row="0" 
+                                                  BackgroundColor="#E3F2FD" 
+                                                  Padding="15,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Label Grid.Column="0" 
+                                                       Text="{Binding NombreEspecialidad}" 
+                                                       FontSize="16" 
+                                                       FontAttributes="Bold" 
+                                                       TextColor="#1565C0"/>
+
+                                                <Frame Grid.Column="1" 
+                                                       BackgroundColor="{Binding EstadoColor}" 
+                                                       Padding="8,4" 
+                                                       CornerRadius="12" 
+                                                       HasShadow="False">
+                                                    <Label Text="{Binding EstadoCita}" 
+                                                           TextColor="White" 
+                                                           FontSize="12" 
+                                                           FontAttributes="Bold"/>
+                                                </Frame>
+                                            </Grid>
+
+                                            <!-- Content -->
+                                            <StackLayout Grid.Row="1" 
+                                                        Padding="15" 
+                                                        Spacing="8">
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Label Grid.Column="0" 
+                                                           Text="👨‍⚕️" 
+                                                           FontSize="16" 
+                                                           VerticalOptions="Center"/>
+                                                    <Label Grid.Column="1" 
+                                                           Text="{Binding NombreMedico}" 
+                                                           FontSize="14" 
+                                                           FontAttributes="Bold" 
+                                                           TextColor="#333" 
+                                                           Margin="8,0,0,0"/>
+                                                </Grid>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Label Grid.Column="0" 
+                                                           Text="📅" 
+                                                           FontSize="16" 
+                                                           VerticalOptions="Center"/>
+                                                    <Label Grid.Column="1" 
+                                                           Text="{Binding FechaFormateada}" 
+                                                           FontSize="14" 
+                                                           TextColor="#555" 
+                                                           Margin="8,0,0,0"/>
+                                                </Grid>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Label Grid.Column="0" 
+                                                           Text="🕐" 
+                                                           FontSize="16" 
+                                                           VerticalOptions="Center"/>
+                                                    <Label Grid.Column="1" 
+                                                           Text="{Binding HoraFormateada}" 
+                                                           FontSize="14" 
+                                                           TextColor="#555" 
+                                                           Margin="8,0,0,0"/>
+                                                </Grid>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Label Grid.Column="0" 
+                                                           Text="🏥" 
+                                                           FontSize="16" 
+                                                           VerticalOptions="Center"/>
+                                                    <Label Grid.Column="1" 
+                                                           Text="{Binding NombreSucursal}" 
+                                                           FontSize="12" 
+                                                           TextColor="#777" 
+                                                           Margin="8,0,0,0"/>
+                                                </Grid>
+                                            </StackLayout>
+
+                                            <!-- Footer -->
+                                            <Grid Grid.Row="2" 
+                                                  BackgroundColor="#F5F5F5" 
+                                                  Padding="15,10">
+                                                <Label Text="📋 Toque para gestionar el triaje" 
+                                                       FontSize="12" 
+                                                       TextColor="#666" 
+                                                       HorizontalTextAlignment="Center" 
+                                                       FontAttributes="Italic"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Frame>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </RefreshView>
+
+                <!-- Empty State -->
+                <StackLayout IsVisible="{Binding HasCitas, Converter={StaticResource InvertedBoolConverter}}" 
+                            VerticalOptions="CenterAndExpand" 
+                            Spacing="20">
+                    <Label Text="📅" 
+                           FontSize="64" 
+                           HorizontalTextAlignment="Center" 
+                           TextColor="#DDD"/>
+                    <Label Text="No hay citas disponibles" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           HorizontalTextAlignment="Center" 
+                           TextColor="#666"/>
+                    <Label Text="Las citas aparecerán aquí cuando sean agendadas" 
+                           FontSize="14" 
+                           HorizontalTextAlignment="Center" 
+                           TextColor="#999"/>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

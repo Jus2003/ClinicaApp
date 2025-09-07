@@ -964,8 +964,10 @@ namespace ClinicaApp.Services
         }
 
 
-        // MÉTODOS PARA TRIAJE - Agregar estos al ApiService existente
 
+        // Agregar estos métodos al ApiService.cs existente
+
+        // Métodos para Triaje Digital
         public async Task<ApiResponse<List<PreguntaTriaje>>> GetPreguntasTriajeAsync()
         {
             try
@@ -973,46 +975,14 @@ namespace ClinicaApp.Services
                 var response = await _httpClient.GetAsync($"{_baseUrl}/triaje/preguntas");
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                System.Diagnostics.Debug.WriteLine($"GetPreguntasTriaje Response: {responseContent}");
-
                 if (response.IsSuccessStatusCode)
                 {
-                    var jsonDoc = JsonDocument.Parse(responseContent);
-                    var preguntas = new List<PreguntaTriaje>();
-
-                    if (jsonDoc.RootElement.TryGetProperty("data", out var dataArray))
+                    var options = new JsonSerializerOptions
                     {
-                        foreach (var preguntaJson in dataArray.EnumerateArray())
-                        {
-                            var pregunta = new PreguntaTriaje
-                            {
-                                IdPregunta = preguntaJson.GetProperty("id_pregunta").GetInt32(),
-                                Pregunta = preguntaJson.GetProperty("pregunta").GetString(),
-                                TipoPregunta = preguntaJson.GetProperty("tipo_pregunta").GetString(),
-                                Obligatoria = preguntaJson.GetProperty("obligatoria").GetInt32() == 1,
-                                Orden = preguntaJson.GetProperty("orden").GetInt32()
-                            };
-
-                            // Procesar opciones si existen
-                            if (preguntaJson.TryGetProperty("opciones", out var opcionesElement))
-                            {
-                                foreach (var opcion in opcionesElement.EnumerateArray())
-                                {
-                                    pregunta.Opciones.Add(opcion.GetString());
-                                }
-                            }
-
-                            preguntas.Add(pregunta);
-                        }
-                    }
-
-                    return new ApiResponse<List<PreguntaTriaje>>
-                    {
-                        Success = true,
-                        Message = "Preguntas cargadas exitosamente",
-                        Status = 200,
-                        Data = preguntas
+                        PropertyNameCaseInsensitive = true
                     };
+
+                    return JsonSerializer.Deserialize<ApiResponse<List<PreguntaTriaje>>>(responseContent, options);
                 }
                 else
                 {
@@ -1035,204 +1005,25 @@ namespace ClinicaApp.Services
             }
         }
 
-        public async Task<ApiResponse<dynamic>> EnviarRespuestasTriajeAsync(int idCita, List<RespuestaTriaje> respuestas, int idUsuario = 1)
-        {
-            try
-            {
-                var requestData = new
-                {
-                    id_cita = idCita,
-                    tipo_triaje = "digital",
-                    id_usuario_registro = idUsuario,
-                    respuestas = respuestas.Select(r => new
-                    {
-                        id_pregunta = r.IdPregunta,
-                        respuesta = r.Respuesta,
-                        valor_numerico = r.ValorNumerico
-                    }).ToArray()
-                };
-
-                var json = JsonSerializer.Serialize(requestData);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                System.Diagnostics.Debug.WriteLine($"Enviando triaje: {json}");
-
-                var response = await _httpClient.PostAsync($"{_baseUrl}/triaje/responder", content);
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                System.Diagnostics.Debug.WriteLine($"EnviarTriaje Response: {responseContent}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonDoc = JsonDocument.Parse(responseContent);
-                    return new ApiResponse<dynamic>
-                    {
-                        Success = jsonDoc.RootElement.GetProperty("success").GetBoolean(),
-                        Message = jsonDoc.RootElement.GetProperty("message").GetString(),
-                        Status = response.StatusCode == System.Net.HttpStatusCode.Created ? 201 : 200,
-                        Data = jsonDoc.RootElement.TryGetProperty("data", out var data) ? data : (JsonElement?)null
-                    };
-                }
-                else
-                {
-                    return new ApiResponse<dynamic>
-                    {
-                        Success = false,
-                        Message = $"Error del servidor: {response.StatusCode}",
-                        Status = (int)response.StatusCode
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse<dynamic>
-                {
-                    Success = false,
-                    Message = $"Error de conexión: {ex.Message}",
-                    Status = 500
-                };
-            }
-        }
-
-        public async Task<ApiResponse<TriajeCompleto>> GetTriajePorCitaAsync(int idCita)
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/triaje/cita/{idCita}");
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                System.Diagnostics.Debug.WriteLine($"GetTriajePorCita Response: {responseContent}");
-
-                var jsonDoc = JsonDocument.Parse(responseContent);
-                var triaje = new TriajeCompleto
-                {
-                    IdCita = idCita
-                };
-
-                if (response.IsSuccessStatusCode)
-                {
-                    triaje.TriajeRealizado = jsonDoc.RootElement.GetProperty("success").GetBoolean();
-
-                    if (jsonDoc.RootElement.TryGetProperty("data", out var dataElement))
-                    {
-                        triaje.EsCompleto = dataElement.GetProperty("triaje_completo").GetBoolean();
-
-                        // Procesar respuestas
-                        if (dataElement.TryGetProperty("respuestas", out var respuestasArray))
-                        {
-                            foreach (var respJson in respuestasArray.EnumerateArray())
-                            {
-                                var respuesta = new RespuestaTriajeDetallada
-                                {
-                                    IdRespuesta = respJson.GetProperty("id_respuesta").GetInt32(),
-                                    IdCita = respJson.GetProperty("id_cita").GetInt32(),
-                                    IdPregunta = respJson.GetProperty("id_pregunta").GetInt32(),
-                                    Respuesta = respJson.GetProperty("respuesta").GetString(),
-                                    FechaRespuesta = respJson.GetProperty("fecha_respuesta").GetString(),
-                                    TipoTriaje = respJson.GetProperty("tipo_triaje").GetString(),
-                                    Pregunta = respJson.GetProperty("pregunta").GetString(),
-                                    TipoPregunta = respJson.GetProperty("tipo_pregunta").GetString()
-                                };
-
-                                if (respJson.TryGetProperty("valor_numerico", out var valorNum) &&
-                                    !valorNum.ValueKind.Equals(JsonValueKind.Null))
-                                {
-                                    respuesta.ValorNumerico = valorNum.GetDouble();
-                                }
-
-                                if (respJson.TryGetProperty("usuario_registro", out var usuario))
-                                {
-                                    respuesta.UsuarioRegistro = usuario.GetString();
-                                }
-
-                                triaje.Respuestas.Add(respuesta);
-                            }
-                        }
-
-                        // Procesar info de la cita
-                        if (dataElement.TryGetProperty("info_cita", out var infoCita))
-                        {
-                            triaje.InfoCita = new InfoCitaTriaje
-                            {
-                                FechaCita = infoCita.GetProperty("fecha_cita").GetString(),
-                                HoraCita = infoCita.GetProperty("hora_cita").GetString(),
-                                EstadoCita = infoCita.GetProperty("estado_cita").GetString(),
-                                Paciente = infoCita.TryGetProperty("paciente", out var pac) ? pac.GetString() : "",
-                                Medico = infoCita.TryGetProperty("medico", out var med) ? med.GetString() : "",
-                                Especialidad = infoCita.TryGetProperty("especialidad", out var esp) ? esp.GetString() : ""
-                            };
-                        }
-                    }
-
-                    return new ApiResponse<TriajeCompleto>
-                    {
-                        Success = true,
-                        Message = "Triaje obtenido exitosamente",
-                        Status = 200,
-                        Data = triaje
-                    };
-                }
-                else
-                {
-                    // Triaje no realizado aún
-                    triaje.TriajeRealizado = false;
-
-                    if (jsonDoc.RootElement.TryGetProperty("data", out var errorData) &&
-                        errorData.TryGetProperty("info_cita", out var citaInfo))
-                    {
-                        triaje.InfoCita = new InfoCitaTriaje
-                        {
-                            FechaCita = citaInfo.GetProperty("fecha_cita").GetString(),
-                            HoraCita = citaInfo.GetProperty("hora_cita").GetString(),
-                            Paciente = citaInfo.TryGetProperty("paciente", out var pac) ? pac.GetString() : "",
-                            Medico = citaInfo.TryGetProperty("medico", out var med) ? med.GetString() : "",
-                            Especialidad = citaInfo.TryGetProperty("especialidad", out var esp) ? esp.GetString() : ""
-                        };
-                    }
-
-                    return new ApiResponse<TriajeCompleto>
-                    {
-                        Success = false,
-                        Message = jsonDoc.RootElement.GetProperty("message").GetString(),
-                        Status = (int)response.StatusCode,
-                        Data = triaje
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse<TriajeCompleto>
-                {
-                    Success = false,
-                    Message = $"Error de conexión: {ex.Message}",
-                    Status = 500
-                };
-            }
-        }
-
-        public async Task<ApiResponse<dynamic>> VerificarEstadoTriajeAsync(int idCita)
+        public async Task<ApiResponse<EstadoTriaje>> VerificarEstadoTriajeAsync(int idCita)
         {
             try
             {
                 var response = await _httpClient.GetAsync($"{_baseUrl}/triaje/verificar/{idCita}");
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                System.Diagnostics.Debug.WriteLine($"VerificarTriaje Response: {responseContent}");
-
                 if (response.IsSuccessStatusCode)
                 {
-                    var jsonDoc = JsonDocument.Parse(responseContent);
-                    return new ApiResponse<dynamic>
+                    var options = new JsonSerializerOptions
                     {
-                        Success = jsonDoc.RootElement.GetProperty("success").GetBoolean(),
-                        Message = "Estado verificado exitosamente",
-                        Status = 200,
-                        Data = jsonDoc.RootElement.GetProperty("data")
+                        PropertyNameCaseInsensitive = true
                     };
+
+                    return JsonSerializer.Deserialize<ApiResponse<EstadoTriaje>>(responseContent, options);
                 }
                 else
                 {
-                    return new ApiResponse<dynamic>
+                    return new ApiResponse<EstadoTriaje>
                     {
                         Success = false,
                         Message = $"Error del servidor: {response.StatusCode}",
@@ -1242,7 +1033,7 @@ namespace ClinicaApp.Services
             }
             catch (Exception ex)
             {
-                return new ApiResponse<dynamic>
+                return new ApiResponse<EstadoTriaje>
                 {
                     Success = false,
                     Message = $"Error de conexión: {ex.Message}",
@@ -1250,6 +1041,195 @@ namespace ClinicaApp.Services
                 };
             }
         }
+
+        public async Task<ApiResponse<object>> ResponderTriajeAsync(TriajeRequest request)
+        {
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                var json = JsonSerializer.Serialize(request, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/triaje/responder", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var deserializeOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    return JsonSerializer.Deserialize<ApiResponse<object>>(responseContent, deserializeOptions);
+                }
+                else
+                {
+                    try
+                    {
+                        var errorOptions = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        };
+                        return JsonSerializer.Deserialize<ApiResponse<object>>(responseContent, errorOptions);
+                    }
+                    catch
+                    {
+                        return new ApiResponse<object>
+                        {
+                            Success = false,
+                            Message = $"Error del servidor: {response.StatusCode}",
+                            Status = (int)response.StatusCode
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        public async Task<ApiResponse<object>> ObtenerTriajeCompletadoAsync(int idCita)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/triaje/cita/{idCita}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    return JsonSerializer.Deserialize<ApiResponse<object>>(responseContent, options);
+                }
+                else
+                {
+                    return new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = $"Error del servidor: {response.StatusCode}",
+                        Status = (int)response.StatusCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        // Métodos para citas del paciente
+        public async Task<ApiResponse<CitasPacienteResponse>> GetCitasPacienteAsync(int idPaciente)
+        {
+            try
+            {
+                var request = new CitasPacienteRequest { IdPaciente = idPaciente };
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                var json = JsonSerializer.Serialize(request, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/citas/buscar-por-paciente", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var deserializeOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    return JsonSerializer.Deserialize<ApiResponse<CitasPacienteResponse>>(responseContent, deserializeOptions);
+                }
+                else
+                {
+                    return new ApiResponse<CitasPacienteResponse>
+                    {
+                        Success = false,
+                        Message = $"Error del servidor: {response.StatusCode}",
+                        Status = (int)response.StatusCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<CitasPacienteResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
+        public async Task<ApiResponse<CitaDetalladaResponse>> GetCitaDetalladaAsync(int idCita)
+        {
+            try
+            {
+                var request = new { id_cita = idCita };
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                var json = JsonSerializer.Serialize(request, options);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/citas/buscar-por-id", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var deserializeOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    return JsonSerializer.Deserialize<ApiResponse<CitaDetalladaResponse>>(responseContent, deserializeOptions);
+                }
+                else
+                {
+                    return new ApiResponse<CitaDetalladaResponse>
+                    {
+                        Success = false,
+                        Message = $"Error del servidor: {response.StatusCode}",
+                        Status = (int)response.StatusCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<CitaDetalladaResponse>
+                {
+                    Success = false,
+                    Message = $"Error de conexión: {ex.Message}",
+                    Status = 500
+                };
+            }
+        }
+
 
 
 

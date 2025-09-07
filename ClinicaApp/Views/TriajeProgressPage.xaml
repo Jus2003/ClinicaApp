@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ClinicaApp.Views.TriajeProgressPage"
+             Title="{Binding IsReadOnly, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Triaje Completado|Completar Triaje'}">
+
+    <Grid>
+        <!-- Loading Overlay -->
+        <Grid IsVisible="{Binding IsLoading}" 
+              BackgroundColor="#80000000" 
+              ZIndex="999">
+            <StackLayout VerticalOptions="Center" 
+                        HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="True" 
+                                 Color="White" 
+                                 Scale="1.5"/>
+                <Label Text="Cargando..." 
+                       TextColor="White" 
+                       FontSize="16" 
+                       HorizontalTextAlignment="Center"/>
+            </StackLayout>
+        </Grid>
+
+        <!-- Main Content -->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Progress Header -->
+            <Frame Grid.Row="0" 
+                   BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="0" 
+                   Padding="20,15">
+
+                <StackLayout Spacing="10">
+                    <Label Text="{Binding ProgressText}" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#2E7D32" 
+                           HorizontalTextAlignment="Center"/>
+
+                    <ProgressBar Progress="{Binding ProgressValue}" 
+                                ProgressColor="#4CAF50" 
+                                BackgroundColor="#E8F5E8"/>
+                </StackLayout>
+            </Frame>
+
+            <!-- Question Content -->
+            <ScrollView Grid.Row="1" 
+                       Padding="20">
+
+                <StackLayout Spacing="20" 
+                            IsVisible="{Binding CurrentQuestion, Converter={StaticResource IsNotNullConverter}}">
+
+                    <!-- Error Message -->
+                    <Frame IsVisible="{Binding Message, Converter={StaticResource StringToBoolConverter}}" 
+                           BackgroundColor="#FFEBEE" 
+                           BorderColor="#F44336" 
+                           CornerRadius="8" 
+                           Padding="15">
+                        <Label Text="{Binding Message}" 
+                               TextColor="#C62828" 
+                               FontSize="14" 
+                               HorizontalTextAlignment="Center"/>
+                    </Frame>
+
+                    <!-- Question Card -->
+                    <Frame BackgroundColor="White" 
+                           HasShadow="True" 
+                           CornerRadius="12" 
+                           Padding="20">
+
+                        <StackLayout Spacing="15">
+                            <!-- Question Title -->
+                            <StackLayout>
+                                <Label Text="{Binding CurrentQuestion.Pregunta}" 
+                                       FontSize="18" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#333" 
+                                       LineBreakMode="WordWrap"/>
+
+                                <Label IsVisible="{Binding CurrentQuestion.EsObligatoria}" 
+                                       Text="* Campo obligatorio" 
+                                       FontSize="12" 
+                                       TextColor="#F44336" 
+                                       Margin="0,5,0,0"/>
+                            </StackLayout>
+
+                            <!-- Text Input -->
+                            <Entry IsVisible="{Binding CurrentQuestion.TipoPregunta, Converter={StaticResource StringEqualConverter}, ConverterParameter=texto}" 
+                                   Text="{Binding CurrentQuestion.Respuesta}" 
+                                   Placeholder="Escriba su respuesta aquí..." 
+                                   IsReadOnly="{Binding IsReadOnly}"
+                                   BackgroundColor="#F8F9FA" 
+                                   FontSize="16"/>
+
+                            <!-- Number Input -->
+                            <Entry IsVisible="{Binding CurrentQuestion.TipoPregunta, Converter={StaticResource StringEqualConverter}, ConverterParameter=numero}" 
+                                   Text="{Binding CurrentQuestion.Respuesta}" 
+                                   Placeholder="Ingrese un número..." 
+                                   Keyboard="Numeric" 
+                                   IsReadOnly="{Binding IsReadOnly}"
+                                   BackgroundColor="#F8F9FA" 
+                                   FontSize="16"/>
+
+                            <!-- Multiple Choice -->
+                            <StackLayout IsVisible="{Binding CurrentQuestion.TipoPregunta, Converter={StaticResource StringEqualConverter}, ConverterParameter=multiple}" 
+                                        Spacing="10">
+
+                                <CollectionView ItemsSource="{Binding CurrentQuestion.OpcionesLista}" 
+                                               SelectionMode="None">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Padding="0,5">
+                                                <Frame BackgroundColor="#F8F9FA" 
+                                                       BorderColor="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentQuestion.Respuesta, Converter={StaticResource StringEqualToBorderColorConverter}, ConverterParameter={Binding}}" 
+                                                       CornerRadius="8" 
+                                                       Padding="15,12" 
+                                                       HasShadow="False">
+
+                                                    <Grid>
+                                                        <Grid.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectOptionCommand}" 
+                                                                                 CommandParameter="{Binding}"
+                                                                                 IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IsReadOnly, Converter={StaticResource InvertedBoolConverter}}"/>
+                                                        </Grid.GestureRecognizers>
+
+                                                        <Label Text="{Binding}" 
+                                                               FontSize="16" 
+                                                               TextColor="#333" 
+                                                               VerticalOptions="Center"/>
+
+                                                        <Label IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentQuestion.Respuesta, Converter={StaticResource StringEqualConverter}, ConverterParameter={Binding}}" 
+                                                               Text="✓" 
+                                                               FontSize="20" 
+                                                               FontAttributes="Bold" 
+                                                               TextColor="#4CAF50" 
+                                                               HorizontalOptions="End" 
+                                                               VerticalOptions="Center"/>
+                                                    </Grid>
+                                                </Frame>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </StackLayout>
+
+                            <!-- Yes/No -->
+                            <StackLayout IsVisible="{Binding CurrentQuestion.TipoPregunta, Converter={StaticResource StringEqualConverter}, ConverterParameter=sino}" 
+                                        Orientation="Horizontal" 
+                                        Spacing="15" 
+                                        HorizontalOptions="Center">
+
+                                <Button Text="Sí" 
+                                        Command="{Binding SelectOptionCommand}" 
+                                        CommandParameter="Sí" 
+                                        BackgroundColor="{Binding CurrentQuestion.Respuesta, Converter={StaticResource StringEqualToColorConverter}, ConverterParameter=Sí}" 
+                                        TextColor="White" 
+                                        CornerRadius="20" 
+                                        WidthRequest="80" 
+                                        HeightRequest="40"
+                                        IsEnabled="{Binding IsReadOnly, Converter={StaticResource InvertedBoolConverter}}"/>
+
+                                <Button Text="No" 
+                                        Command="{Binding SelectOptionCommand}" 
+                                        CommandParameter="No" 
+                                        BackgroundColor="{Binding CurrentQuestion.Respuesta, Converter={StaticResource StringEqualToColorConverter}, ConverterParameter=No}" 
+                                        TextColor="White" 
+                                        CornerRadius="20" 
+                                        WidthRequest="80" 
+                                        HeightRequest="40"
+                                        IsEnabled="{Binding IsReadOnly, Converter={StaticResource InvertedBoolConverter}}"/>
+                            </StackLayout>
+
+                            <!-- Scale -->
+                            <StackLayout IsVisible="{Binding CurrentQuestion.TipoPregunta, Converter={StaticResource StringEqualConverter}, ConverterParameter=escala}" 
+                                        Spacing="15">
+
+                                <StackLayout Orientation="Horizontal" 
+                                            HorizontalOptions="Center" 
+                                            Spacing="5">
+                                    <Label Text="{Binding CurrentQuestion.OpcionesEscalaObj.Min}" 
+                                           FontSize="12" 
+                                           TextColor="#666"/>
+                                    <Label Text="-" 
+                                           FontSize="12" 
+                                           TextColor="#666"/>
+                                    <Label Text="{Binding CurrentQuestion.OpcionesEscalaObj.Max}" 
+                                           FontSize="12" 
+                                           TextColor="#666"/>
+                                </StackLayout>
+
+                                <Slider Minimum="{Binding CurrentQuestion.OpcionesEscalaObj.Min}" 
+                                        Maximum="{Binding CurrentQuestion.OpcionesEscalaObj.Max}" 
+Value="{Binding CurrentQuestion.Respuesta, Converter={StaticResource StringToDoubleConverter}}"
+                                        ValueChanged="OnSliderValueChanged"
+                                        IsEnabled="{Binding IsReadOnly, Converter={StaticResource InvertedBoolConverter}}"
+                                        ThumbColor="#4CAF50" 
+                                        MinimumTrackColor="#4CAF50" 
+                                        MaximumTrackColor="#E0E0E0"/>
+
+                                <Label Text="{Binding CurrentQuestion.Respuesta}" 
+                                       FontSize="24" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#4CAF50" 
+                                       HorizontalTextAlignment="Center"/>
+
+                                <!-- Scale Labels -->
+                                <Grid IsVisible="{Binding CurrentQuestion.OpcionesEscalaObj.Etiquetas, Converter={StaticResource IsNotNullConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Grid.Column="0" 
+                                           Text="{Binding CurrentQuestion.OpcionesEscalaObj.Etiquetas[1]}" 
+                                           FontSize="12" 
+                                           TextColor="#666" 
+                                           HorizontalTextAlignment="Start"/>
+                                    <Label Grid.Column="1" 
+                                           Text="{Binding CurrentQuestion.OpcionesEscalaObj.Etiquetas[5]}" 
+                                           FontSize="12" 
+                                           TextColor="#666" 
+                                           HorizontalTextAlignment="Center"/>
+                                    <Label Grid.Column="2" 
+                                           Text="{Binding CurrentQuestion.OpcionesEscalaObj.Etiquetas[10]}" 
+                                           FontSize="12" 
+                                           TextColor="#666" 
+                                           HorizontalTextAlignment="End"/>
+                                </Grid>
+                            </StackLayout>
+
+                        </StackLayout>
+                    </Frame>
+
+                </StackLayout>
+            </ScrollView>
+
+            <!-- Navigation Footer -->
+            <Frame Grid.Row="2" 
+                   BackgroundColor="White" 
+                   HasShadow="True" 
+                   CornerRadius="0" 
+                   Padding="20">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Previous Button -->
+                    <Button Grid.Column="0" 
+                            Text="← Anterior" 
+                            Command="{Binding PreviousQuestionCommand}" 
+                            IsVisible="{Binding CanGoPrevious}" 
+                            BackgroundColor="#757575" 
+                            TextColor="White" 
+                            CornerRadius="8" 
+                            WidthRequest="100" 
+                            FontSize="14"/>
+
+                    <!-- Finish Button -->
+                    <Button Grid.Column="1" 
+                            IsVisible="{Binding IsLastQuestion}" 
+                            Text="{Binding IsReadOnly, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Cerrar|Finalizar Triaje'}" 
+                            Command="{Binding FinishTriajeCommand}" 
+                            BackgroundColor="#2E7D32" 
+                            TextColor="White" 
+                            CornerRadius="8" 
+                            Margin="10,0" 
+                            FontSize="16" 
+                            FontAttributes="Bold"/>
+
+                    <!-- Next Button -->
+                    <Button Grid.Column="2" 
+                            Text="Siguiente →" 
+                            Command="{Binding NextQuestionCommand}" 
+                            IsVisible="{Binding CanGoNext}" 
+                            BackgroundColor="#1976D2" 
+                            TextColor="White" 
+                            CornerRadius="8" 
+                            WidthRequest="100" 
+                            FontSize="14"/>
+                </Grid>
+            </Frame>
+
+        </Grid>
+    </Grid>
+</ContentPage>
