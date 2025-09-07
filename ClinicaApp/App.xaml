@@ -14,13 +14,15 @@
             <helpers:BoolToSuccessColorConverter x:Key="BoolToSuccessColorConverter" />
             <helpers:StringToBoolConverter x:Key="StringToBoolConverter" />
 
-            <!-- ✅ NUEVOS CONVERTERS PARA TRIAJE -->
+            <!-- Nuevos converters para triaje -->
             <helpers:IsNotNullConverter x:Key="IsNotNullConverter" />
             <helpers:StringEqualConverter x:Key="StringEqualConverter" />
             <helpers:StringEqualToColorConverter x:Key="StringEqualToColorConverter" />
             <helpers:StringEqualToBorderColorConverter x:Key="StringEqualToBorderColorConverter" />
             <helpers:StringToDoubleConverter x:Key="StringToDoubleConverter" />
             <helpers:BoolToStringConverter x:Key="BoolToStringConverter" />
+            <helpers:StringEqualToFrameColorConverter x:Key="StringEqualToFrameColorConverter" />
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

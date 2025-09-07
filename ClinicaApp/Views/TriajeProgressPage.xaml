@@ -109,38 +109,39 @@
 
                             <!-- Multiple Choice -->
                             <StackLayout IsVisible="{Binding CurrentQuestion.TipoPregunta, Converter={StaticResource StringEqualConverter}, ConverterParameter=multiple}" 
-                                        Spacing="10">
+                                Spacing="10">
 
                                 <CollectionView ItemsSource="{Binding CurrentQuestion.OpcionesLista}" 
-                                               SelectionMode="None">
+                                        SelectionMode="None">
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Padding="0,5">
-                                                <Frame BackgroundColor="#F8F9FA" 
-                                                       BorderColor="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentQuestion.Respuesta, Converter={StaticResource StringEqualToBorderColorConverter}, ConverterParameter={Binding}}" 
-                                                       CornerRadius="8" 
-                                                       Padding="15,12" 
-                                                       HasShadow="False">
+                                                <Frame BackgroundColor="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentQuestion.Respuesta, Converter={StaticResource StringEqualToFrameColorConverter}, ConverterParameter={Binding}}" 
+                                                   BorderColor="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentQuestion.Respuesta, Converter={StaticResource StringEqualToBorderColorConverter}, ConverterParameter={Binding}}" 
+                                                   CornerRadius="8" 
+                                                   Padding="15,12" 
+                                                   HasShadow="False">
 
                                                     <Grid>
+                                                        <!-- ✅ SIMPLE: Siempre tener el tap, validar en el ViewModel -->
                                                         <Grid.GestureRecognizers>
                                                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectOptionCommand}" 
-                                                                                 CommandParameter="{Binding}"
-                                                                                 />
+                                                     CommandParameter="{Binding}"/>
                                                         </Grid.GestureRecognizers>
 
                                                         <Label Text="{Binding}" 
-                                                               FontSize="16" 
-                                                               TextColor="#333" 
-                                                               VerticalOptions="Center"/>
+                                                           FontSize="16" 
+                                                           TextColor="#333" 
+                                                           VerticalOptions="Center"/>
 
+                                                        <!-- ✅ MOSTRAR CHECK CUANDO ESTÁ SELECCIONADA -->
                                                         <Label IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CurrentQuestion.Respuesta, Converter={StaticResource StringEqualConverter}, ConverterParameter={Binding}}" 
-                                                               Text="✓" 
-                                                               FontSize="20" 
-                                                               FontAttributes="Bold" 
-                                                               TextColor="#4CAF50" 
-                                                               HorizontalOptions="End" 
-                                                               VerticalOptions="Center"/>
+                                                           Text="✓" 
+                                                           FontSize="20" 
+                                                           FontAttributes="Bold" 
+                                                           TextColor="White" 
+                                                           HorizontalOptions="End" 
+                                                           VerticalOptions="Center"/>
                                                     </Grid>
                                                 </Frame>
                                             </Grid>

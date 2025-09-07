@@ -63,5 +63,6 @@ namespace ClinicaApp.Helpers
         {
             return CurrentUser != null;
         }
+
     }
 }

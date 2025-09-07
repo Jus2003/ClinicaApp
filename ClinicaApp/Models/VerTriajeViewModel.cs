@@ -52,7 +52,8 @@ namespace ClinicaApp.ViewModels
             }
         }
 
-        public ObservableCollection<RespuestaTriajeDetallada> Respuestas { get; set; } = new();
+        public ObservableCollection<RespuestaTriajeCompleta> Respuestas { get; set; } = new();
+
 
         public ICommand LoadTriajeCommand => new Command(async () => await LoadTriajeAsync());
 

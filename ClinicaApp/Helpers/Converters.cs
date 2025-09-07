@@ -1,9 +1,8 @@
-﻿// Helpers/Converters.cs (o como se llame tu archivo existente)
+﻿// Helpers/Converters.cs - REEMPLAZAR TODO EL CONTENIDO CON ESTO:
 using System.Globalization;
 
 namespace ClinicaApp.Helpers
 {
-    // ✅ CONVERTERS EXISTENTES (los que ya tienes)
     public class InvertedBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -12,6 +11,7 @@ namespace ClinicaApp.Helpers
                 return !boolValue;
             return false;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool boolValue)
@@ -26,6 +26,7 @@ namespace ClinicaApp.Helpers
         {
             return !string.IsNullOrEmpty(value as string);
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -40,6 +41,7 @@ namespace ClinicaApp.Helpers
                 return boolValue ? Colors.Green : Colors.Red;
             return Colors.Gray;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -52,6 +54,7 @@ namespace ClinicaApp.Helpers
         {
             return Colors.Transparent;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -64,6 +67,7 @@ namespace ClinicaApp.Helpers
         {
             return value != null;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -80,6 +84,7 @@ namespace ClinicaApp.Helpers
             }
             return Colors.Gray;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -92,19 +97,21 @@ namespace ClinicaApp.Helpers
         {
             return !string.IsNullOrEmpty(value?.ToString());
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
     }
 
-    // ✅ NUEVOS CONVERTERS PARA TRIAJE (agregar estos al final)
+    // ✅ NUEVOS CONVERTERS PARA TRIAJE
     public class IsNotNullConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value != null;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -117,6 +124,7 @@ namespace ClinicaApp.Helpers
         {
             return value?.ToString()?.Equals(parameter?.ToString(), StringComparison.OrdinalIgnoreCase) == true;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -130,6 +138,7 @@ namespace ClinicaApp.Helpers
             var isSelected = value?.ToString()?.Equals(parameter?.ToString(), StringComparison.OrdinalIgnoreCase) == true;
             return isSelected ? Colors.Green : Colors.Gray;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -143,6 +152,7 @@ namespace ClinicaApp.Helpers
             var isSelected = value?.ToString()?.Equals(parameter?.ToString(), StringComparison.OrdinalIgnoreCase) == true;
             return isSelected ? Colors.Green : Colors.LightGray;
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -151,13 +161,16 @@ namespace ClinicaApp.Helpers
 
     public class StringToDoubleConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (double.TryParse(value?.ToString(), out var result))
+            if (value == null) return 1.0;
+
+            if (double.TryParse(value.ToString(), out var result))
                 return result;
             return 1.0;
         }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             return value?.ToString();
         }
@@ -165,7 +178,7 @@ namespace ClinicaApp.Helpers
 
     public class BoolToStringConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             var boolValue = (bool)(value ?? false);
             var parameters = parameter?.ToString()?.Split('|');
@@ -177,7 +190,22 @@ namespace ClinicaApp.Helpers
 
             return boolValue ? "Sí" : "No";
         }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class StringEqualToFrameColorConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            var isSelected = value?.ToString()?.Equals(parameter?.ToString(), StringComparison.OrdinalIgnoreCase) == true;
+            return isSelected ? Colors.Green : Colors.LightGray;
+        }
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

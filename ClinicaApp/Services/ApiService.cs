@@ -1103,8 +1103,14 @@ namespace ClinicaApp.Services
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"=== API CALL TRIAJE COMPLETADO ===");
+                System.Diagnostics.Debug.WriteLine($"URL: {_baseUrl}/triaje/cita/{idCita}");
+
                 var response = await _httpClient.GetAsync($"{_baseUrl}/triaje/cita/{idCita}");
                 var responseContent = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine($"Response Status: {response.StatusCode}");
+                System.Diagnostics.Debug.WriteLine($"Response Content: {responseContent}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -1127,6 +1133,7 @@ namespace ClinicaApp.Services
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Exception en ObtenerTriajeCompletadoAsync: {ex.Message}");
                 return new ApiResponse<object>
                 {
                     Success = false,
@@ -1136,7 +1143,8 @@ namespace ClinicaApp.Services
             }
         }
 
-        // Métodos para citas del paciente
+        // En ApiService.cs, en el método GetCitasPacienteAsync, agregar debug:
+
         public async Task<ApiResponse<CitasPacienteResponse>> GetCitasPacienteAsync(int idPaciente)
         {
             try
@@ -1151,8 +1159,18 @@ namespace ClinicaApp.Services
                 var json = JsonSerializer.Serialize(request, options);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+                // ✅ AGREGAR DEBUG
+                System.Diagnostics.Debug.WriteLine($"=== API CALL ===");
+                System.Diagnostics.Debug.WriteLine($"URL: {_baseUrl}/citas/buscar-por-paciente");
+                System.Diagnostics.Debug.WriteLine($"Request JSON: {json}");
+                System.Diagnostics.Debug.WriteLine($"ID Paciente enviado: {idPaciente}");
+
                 var response = await _httpClient.PostAsync($"{_baseUrl}/citas/buscar-por-paciente", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
+
+                // ✅ AGREGAR MÁS DEBUG
+                System.Diagnostics.Debug.WriteLine($"Response Status: {response.StatusCode}");
+                System.Diagnostics.Debug.WriteLine($"Response Content: {responseContent}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -1161,10 +1179,18 @@ namespace ClinicaApp.Services
                         PropertyNameCaseInsensitive = true
                     };
 
-                    return JsonSerializer.Deserialize<ApiResponse<CitasPacienteResponse>>(responseContent, deserializeOptions);
+                    var apiResponse = JsonSerializer.Deserialize<ApiResponse<CitasPacienteResponse>>(responseContent, deserializeOptions);
+
+                    // ✅ DEBUG DE LA RESPUESTA DESERIALIZADA
+                    System.Diagnostics.Debug.WriteLine($"API Success: {apiResponse?.Success}");
+                    System.Diagnostics.Debug.WriteLine($"API Message: {apiResponse?.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Citas Count: {apiResponse?.Data?.Citas?.Count}");
+
+                    return apiResponse;
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine($"ERROR: Status Code {response.StatusCode}");
                     return new ApiResponse<CitasPacienteResponse>
                     {
                         Success = false,
@@ -1175,6 +1201,8 @@ namespace ClinicaApp.Services
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"EXCEPTION: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"STACK TRACE: {ex.StackTrace}");
                 return new ApiResponse<CitasPacienteResponse>
                 {
                     Success = false,
@@ -1235,8 +1263,14 @@ namespace ClinicaApp.Services
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"=== API CALL TRIAJE COMPLETADO ===");
+                System.Diagnostics.Debug.WriteLine($"URL: {_baseUrl}/triaje/cita/{idCita}");
+
                 var response = await _httpClient.GetAsync($"{_baseUrl}/triaje/cita/{idCita}");
                 var responseContent = await response.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine($"Response Status: {response.StatusCode}");
+                System.Diagnostics.Debug.WriteLine($"Response Content: {responseContent}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -1259,6 +1293,7 @@ namespace ClinicaApp.Services
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Exception en GetTriajePorCitaAsync: {ex.Message}");
                 return new ApiResponse<TriajeCompletadoResponse>
                 {
                     Success = false,

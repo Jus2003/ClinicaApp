@@ -18,7 +18,8 @@ public partial class VerTriajePage : ContentPage
 
         if (!string.IsNullOrEmpty(IdCita) && int.TryParse(IdCita, out int citaId))
         {
-            BindingContext = new VerTriajeViewModel(citaId);
+            var viewModel = new VerTriajeViewModel();
+            viewModel.CitaId = citaId;
         }
         else
         {

@@ -1,5 +1,4 @@
-﻿// ViewModels/CitaDetalleViewModel.cs
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Input;
 using ClinicaApp.Models;
 using ClinicaApp.Services;
@@ -179,13 +178,26 @@ namespace ClinicaApp.ViewModels
 
         private async Task NavigateToTriajeAsync()
         {
+            System.Diagnostics.Debug.WriteLine($"=== NAVEGACIÓN A TRIAJE ===");
+            System.Diagnostics.Debug.WriteLine($"CitaId: {CitaId}");
+            System.Diagnostics.Debug.WriteLine($"TriajeCompleto: {EstadoTriaje?.TriajeCompleto}");
+            System.Diagnostics.Debug.WriteLine($"TriajeRealizado: {EstadoTriaje?.TriajeRealizado}");
+
             var parameters = new Dictionary<string, object>
             {
                 { "CitaId", CitaId },
                 { "TriajeCompleto", EstadoTriaje?.TriajeCompleto ?? false }
             };
 
-            await Shell.Current.GoToAsync("triajeprogress", parameters);
+            try
+            {
+                await Shell.Current.GoToAsync("triajeprogress", parameters);
+                System.Diagnostics.Debug.WriteLine($"Navegación exitosa a triajeprogress");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en navegación: {ex.Message}");
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

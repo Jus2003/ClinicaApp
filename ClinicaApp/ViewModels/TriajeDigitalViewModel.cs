@@ -73,11 +73,15 @@ namespace ClinicaApp.ViewModels
         public ICommand RefreshCommand { get; }
         public ICommand CitaSelectedCommand { get; }
 
+        // ViewModels/TriajeDigitalViewModel.cs - Corregir el método LoadCitasAsync
+
+        // ViewModels/TriajeDigitalViewModel.cs - Método LoadCitasAsync completo
+
         private async Task LoadCitasAsync()
         {
-            if (!IsPaciente())
+            if (!SessionManager.IsLoggedIn)
             {
-                Message = "Debe iniciar sesión como paciente para ver las citas";
+                Message = "Debe iniciar sesión para ver las citas";
                 return;
             }
 
@@ -87,26 +91,68 @@ namespace ClinicaApp.ViewModels
             try
             {
                 var pacienteId = GetPacienteId();
+
+                System.Diagnostics.Debug.WriteLine($"ID del paciente: {pacienteId}");
+                System.Diagnostics.Debug.WriteLine($"Usuario actual: {SessionManager.CurrentUser?.Nombre}");
+                System.Diagnostics.Debug.WriteLine($"=== DEBUG TRIAJE ===");
+                System.Diagnostics.Debug.WriteLine($"IsLoggedIn: {SessionManager.IsLoggedIn}");
+                System.Diagnostics.Debug.WriteLine($"CurrentUser: {SessionManager.CurrentUser?.Nombre}");
+                System.Diagnostics.Debug.WriteLine($"CurrentUser ID: {SessionManager.CurrentUser?.Id}");
+                System.Diagnostics.Debug.WriteLine($"CurrentUser Rol: {SessionManager.CurrentUser?.Rol}");
+                System.Diagnostics.Debug.WriteLine($"==================");
+
+                if (pacienteId <= 0)
+                {
+                    Message = "No se pudo obtener el ID del paciente";
+                    return;
+                }
+
                 var response = await _apiService.GetCitasPacienteAsync(pacienteId);
+
+                System.Diagnostics.Debug.WriteLine($"=== RESPONSE DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"Response Success: {response?.Success}");
+                System.Diagnostics.Debug.WriteLine($"Response Message: {response?.Message}");
+                System.Diagnostics.Debug.WriteLine($"Response Data is null: {response?.Data == null}");
+                System.Diagnostics.Debug.WriteLine($"Response Data Citas is null: {response?.Data?.Citas == null}");
+                System.Diagnostics.Debug.WriteLine($"Response Data Citas Count: {response?.Data?.Citas?.Count}");
 
                 if (response.Success && response.Data?.Citas != null)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Agregando {response.Data.Citas.Count} citas...");
+
                     Citas.Clear();
                     foreach (var cita in response.Data.Citas)
                     {
+                        System.Diagnostics.Debug.WriteLine($"Agregando cita ID: {cita.IdCita} - {cita.NombreEspecialidad}");
                         Citas.Add(cita);
                     }
 
                     HasCitas = Citas.Count > 0;
 
+                    System.Diagnostics.Debug.WriteLine($"===== FINAL RESULT =====");
+                    System.Diagnostics.Debug.WriteLine($"HasCitas: {HasCitas}");
+                    System.Diagnostics.Debug.WriteLine($"Total en Collection: {Citas.Count}");
+                    if (Citas.Count > 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Citas[0] NombreEspecialidad: {Citas[0]?.NombreEspecialidad}");
+                        System.Diagnostics.Debug.WriteLine($"Citas[0] NombreMedico: {Citas[0]?.NombreMedico}");
+                        System.Diagnostics.Debug.WriteLine($"Citas[0] FechaCita: {Citas[0]?.FechaCita}");
+                    }
+                    System.Diagnostics.Debug.WriteLine($"========================");
+
                     if (!HasCitas)
                     {
                         Message = "No tiene citas registradas";
                     }
+                    else
+                    {
+                        Message = ""; // Limpiar mensaje de error
+                    }
                 }
                 else
                 {
-                    Message = response.Message ?? "Error al cargar las citas";
+                    System.Diagnostics.Debug.WriteLine($"Error en respuesta o datos nulos");
+                    Message = response?.Message ?? "Error al cargar las citas";
                     HasCitas = false;
                 }
             }
@@ -114,11 +160,19 @@ namespace ClinicaApp.ViewModels
             {
                 Message = $"Error inesperado: {ex.Message}";
                 HasCitas = false;
+                System.Diagnostics.Debug.WriteLine($"Error LoadCitas: {ex}");
             }
             finally
             {
                 IsLoading = false;
             }
+        }
+
+        // ✅ CORREGIR estos métodos helper:
+        private int GetPacienteId()
+        {
+            // Usar directamente el ID del usuario actual
+            return SessionManager.CurrentUser?.Id ?? 0;
         }
 
         private async Task RefreshCitasAsync()
@@ -130,26 +184,37 @@ namespace ClinicaApp.ViewModels
 
         private async Task NavigateToCitaDetalleAsync(CitaDetalle cita)
         {
-            if (cita == null) return;
-
-            var parameters = new Dictionary<string, object>
+            if (cita == null)
             {
-                { "CitaId", cita.IdCita }
-            };
+                System.Diagnostics.Debug.WriteLine("ERROR: Cita es null");
+                return;
+            }
 
-            await Shell.Current.GoToAsync("citadetalle", parameters);
-        }
+            System.Diagnostics.Debug.WriteLine($"=== NAVEGACIÓN ===");
+            System.Diagnostics.Debug.WriteLine($"Navegando a cita ID: {cita.IdCita}");
+            System.Diagnostics.Debug.WriteLine($"Especialidad: {cita.NombreEspecialidad}");
+            System.Diagnostics.Debug.WriteLine($"Médico: {cita.NombreMedico}");
 
-        // Helper methods para trabajar con SessionManager
-        private bool IsPaciente()
+            try
+            {
+                var parameters = new Dictionary<string, object>
         {
-            return SessionManager.CurrentUser?.Rol?.Equals("Paciente", StringComparison.OrdinalIgnoreCase) == true;
+            { "CitaId", cita.IdCita }
+        };
+
+                System.Diagnostics.Debug.WriteLine($"Parámetros: CitaId = {cita.IdCita}");
+
+                await Shell.Current.GoToAsync("citadetalle", parameters);
+
+                System.Diagnostics.Debug.WriteLine($"Navegación exitosa");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR en navegación: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
         }
 
-        private int GetPacienteId()
-        {
-            return SessionManager.CurrentUser?.Id ?? 0;
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -157,5 +222,7 @@ namespace ClinicaApp.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+
     }
 }

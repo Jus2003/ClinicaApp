@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using static ClinicaApp.Models.CitaDetalle;
+using ClinicaApp.Helpers;
 
 namespace ClinicaApp.Models
 {
@@ -96,7 +97,9 @@ namespace ClinicaApp.Models
     }
 
     // Modelo para la respuesta completa del triaje
-    public class RespuestaTriajeCompleta : RespuestaTriajeDetallada
+    // En Models/TriajeModels.cs, actualizar RespuestaTriajeCompleta:
+
+    public class RespuestaTriajeCompleta
     {
         [JsonPropertyName("id_respuesta")]
         public int IdRespuesta { get; set; }
@@ -111,6 +114,7 @@ namespace ClinicaApp.Models
         public string Respuesta { get; set; }
 
         [JsonPropertyName("valor_numerico")]
+        [JsonConverter(typeof(StringToNullableDecimalConverter))] // ✅ AGREGAR CONVERTER
         public decimal? ValorNumerico { get; set; }
 
         [JsonPropertyName("fecha_respuesta")]
@@ -127,6 +131,9 @@ namespace ClinicaApp.Models
 
         [JsonPropertyName("opciones")]
         public object Opciones { get; set; }
+
+        [JsonPropertyName("usuario_registro")]
+        public string UsuarioRegistro { get; set; }
     }
 
     // Modelo para el estado del triaje
@@ -328,7 +335,7 @@ namespace ClinicaApp.Models
             public bool TriajeCompleto { get; set; }
 
             [JsonPropertyName("respuestas")]
-            public List<RespuestaTriajeCompleta> Respuestas { get; set; } = new();
+            public List<RespuestaTriajeCompleta> Respuestas { get; set; } = new(); // ✅ Usar RespuestaTriajeCompleta
 
             [JsonPropertyName("estadisticas")]
             public EstadisticasTriaje Estadisticas { get; set; }

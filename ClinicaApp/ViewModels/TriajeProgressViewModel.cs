@@ -1,10 +1,11 @@
 ﻿// ViewModels/TriajeProgressViewModel.cs
-using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows.Input;
 using ClinicaApp.Models;
 using ClinicaApp.Services;
-using System.Text.Json;
 
 namespace ClinicaApp.ViewModels
 {
@@ -25,6 +26,7 @@ namespace ClinicaApp.ViewModels
         private double _progressValue;
         private string _message;
         private bool _isReadOnly;
+        public ICommand SelectOptionCommand { get; }
 
         public TriajeProgressViewModel()
         {
@@ -35,9 +37,29 @@ namespace ClinicaApp.ViewModels
             PreviousQuestionCommand = new Command(async () => await PreviousQuestionAsync(), () => CanGoPrevious);
             FinishTriajeCommand = new Command(async () => await FinishTriajeAsync());
             BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
+            SelectOptionCommand = new Command<string>((option) => SelectOption(option));
         }
 
         public ObservableCollection<PreguntaTriaje> Preguntas { get; set; } = new ObservableCollection<PreguntaTriaje>();
+
+        private void SelectOption(string option)
+        {
+            // ✅ VALIDAR SI ES READ-ONLY
+            if (CurrentQuestion != null && !IsReadOnly)
+            {
+                System.Diagnostics.Debug.WriteLine($"Opción seleccionada: {option} para pregunta: {CurrentQuestion.Pregunta}");
+
+                CurrentQuestion.Respuesta = option;
+                OnPropertyChanged(nameof(CurrentQuestion));
+                UpdateNavigationButtons();
+
+                System.Diagnostics.Debug.WriteLine($"Respuesta actualizada: {CurrentQuestion.Respuesta}");
+            }
+            else if (IsReadOnly)
+            {
+                System.Diagnostics.Debug.WriteLine($"Modo solo lectura - tap ignorado");
+            }
+        }
 
         public int CitaId
         {
@@ -178,18 +200,23 @@ namespace ClinicaApp.ViewModels
 
             try
             {
+                System.Diagnostics.Debug.WriteLine($"LoadTriajeAsync - TriajeCompleto: {TriajeCompleto}");
+
                 if (TriajeCompleto)
                 {
+                    System.Diagnostics.Debug.WriteLine("Cargando triaje completado...");
                     await LoadTriajeCompletadoAsync();
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine("Cargando preguntas nuevas...");
                     await LoadPreguntasTriajeAsync();
                 }
             }
             catch (Exception ex)
             {
                 Message = $"Error inesperado: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"Error en LoadTriajeAsync: {ex}");
             }
             finally
             {
@@ -197,47 +224,108 @@ namespace ClinicaApp.ViewModels
             }
         }
 
+        // En TriajeProgressViewModel.cs - Corregir LoadTriajeCompletadoAsync:
+
+        // En TriajeProgressViewModel.cs, simplificar LoadTriajeCompletadoAsync:
+
         private async Task LoadTriajeCompletadoAsync()
         {
-            var response = await _apiService.ObtenerTriajeCompletadoAsync(CitaId);
+            System.Diagnostics.Debug.WriteLine($"=== CARGANDO TRIAJE COMPLETADO ===");
 
-            if (response.Success && response.Data != null)
+            try
             {
-                var jsonElement = (JsonElement)response.Data;
-                var dataProperty = jsonElement.GetProperty("data");
-                var respuestasProperty = dataProperty.GetProperty("respuestas");
+                var response = await _apiService.ObtenerTriajeCompletadoAsync(CitaId);
 
-                var respuestas = JsonSerializer.Deserialize<List<RespuestaTriajeCompleta>>(
-                    respuestasProperty.GetRawText(),
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                // Convertir respuestas a preguntas con respuestas ya llenadas
-                Preguntas.Clear();
-                foreach (var respuesta in respuestas.OrderBy(r => r.IdPregunta))
+                if (response.Success && response.Data != null)
                 {
-                    var pregunta = new PreguntaTriaje
-                    {
-                        IdPregunta = respuesta.IdPregunta,
-                        Pregunta = respuesta.Pregunta,
-                        TipoPregunta = respuesta.TipoPregunta,
-                        Respuesta = respuesta.Respuesta
-                    };
+                    var jsonElement = (JsonElement)response.Data;
 
-                    // Procesar opciones si existen
-                    if (respuesta.Opciones != null)
+                    if (jsonElement.TryGetProperty("respuestas", out var respuestasProperty))
                     {
-                        ProcessQuestionOptions(pregunta, respuesta.Opciones);
+                        System.Diagnostics.Debug.WriteLine($"Deserializando {respuestasProperty.GetArrayLength()} respuestas...");
+
+                        // ✅ USAR TRY-CATCH ESPECÍFICO PARA LA DESERIALIZACIÓN
+                        try
+                        {
+                            var respuestas = JsonSerializer.Deserialize<List<RespuestaTriajeCompleta>>(
+                                respuestasProperty.GetRawText(),
+                                new JsonSerializerOptions
+                                {
+                                    PropertyNameCaseInsensitive = true,
+                                    NumberHandling = JsonNumberHandling.AllowReadingFromString // ✅ PERMITIR STRINGS COMO NÚMEROS
+                                });
+
+                            System.Diagnostics.Debug.WriteLine($"Respuestas deserializadas exitosamente: {respuestas?.Count}");
+
+                            // Convertir a preguntas
+                            Preguntas.Clear();
+                            foreach (var respuesta in respuestas.OrderBy(r => r.IdPregunta))
+                            {
+                                var pregunta = new PreguntaTriaje
+                                {
+                                    IdPregunta = respuesta.IdPregunta,
+                                    Pregunta = respuesta.Pregunta,
+                                    TipoPregunta = respuesta.TipoPregunta,
+                                    Respuesta = respuesta.Respuesta, // ✅ Verificar que esto se asigne correctamente
+                                    Obligatoria = 1,
+                                    Orden = respuesta.IdPregunta
+                                };
+
+                                // ✅ AGREGAR DEBUG ESPECÍFICO
+                                System.Diagnostics.Debug.WriteLine($"=== PREGUNTA {respuesta.IdPregunta} ===");
+                                System.Diagnostics.Debug.WriteLine($"Tipo: {respuesta.TipoPregunta}");
+                                System.Diagnostics.Debug.WriteLine($"Pregunta: {respuesta.Pregunta}");
+                                System.Diagnostics.Debug.WriteLine($"Respuesta original: '{respuesta.Respuesta}'");
+                                System.Diagnostics.Debug.WriteLine($"Respuesta asignada: '{pregunta.Respuesta}'");
+                                System.Diagnostics.Debug.WriteLine($"========================");
+
+                                if (respuesta.Opciones != null)
+                                {
+                                    ProcessQuestionOptions(pregunta, respuesta.Opciones);
+
+                                    // ✅ DEBUG PARA OPCIONES MÚLTIPLES
+                                    if (pregunta.TipoPregunta == "multiple")
+                                    {
+                                        System.Diagnostics.Debug.WriteLine($"Opciones múltiples cargadas: {pregunta.OpcionesLista?.Count}");
+                                        if (pregunta.OpcionesLista != null)
+                                        {
+                                            foreach (var opcion in pregunta.OpcionesLista)
+                                            {
+                                                System.Diagnostics.Debug.WriteLine($"  - {opcion}");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Preguntas.Add(pregunta);
+                            }
+
+                            IsReadOnly = true;
+                            CurrentQuestionIndex = 0;
+                            Message = $"Triaje completado - {Preguntas.Count} respuestas cargadas";
+
+                            System.Diagnostics.Debug.WriteLine($"✅ Triaje completado cargado: {Preguntas.Count} preguntas");
+                        }
+                        catch (JsonException jsonEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error de deserialización JSON: {jsonEx.Message}");
+                            Message = "Error al procesar las respuestas del triaje";
+                        }
                     }
-
-                    Preguntas.Add(pregunta);
+                    else
+                    {
+                        Message = "No se encontraron respuestas del triaje";
+                    }
                 }
-
-                IsReadOnly = true;
-                CurrentQuestionIndex = 0;
+                else
+                {
+                    Message = response?.Message ?? "Error al cargar el triaje completado";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Message = response.Message ?? "Error al cargar el triaje completado";
+                System.Diagnostics.Debug.WriteLine($"Exception: {ex.Message}");
+                Message = $"Error inesperado: {ex.Message}";
             }
         }
 
@@ -295,11 +383,22 @@ namespace ClinicaApp.ViewModels
             }
         }
 
+
         private void UpdateCurrentQuestion()
         {
             if (Preguntas.Count > 0 && CurrentQuestionIndex >= 0 && CurrentQuestionIndex < Preguntas.Count)
             {
                 CurrentQuestion = Preguntas[CurrentQuestionIndex];
+
+                // ✅ AGREGAR DEBUG
+                System.Diagnostics.Debug.WriteLine($"=== CURRENT QUESTION UPDATE ===");
+                System.Diagnostics.Debug.WriteLine($"Index: {CurrentQuestionIndex}");
+                System.Diagnostics.Debug.WriteLine($"Pregunta: {CurrentQuestion?.Pregunta}");
+                System.Diagnostics.Debug.WriteLine($"Respuesta: '{CurrentQuestion?.Respuesta}'");
+                System.Diagnostics.Debug.WriteLine($"Tipo: {CurrentQuestion?.TipoPregunta}");
+                System.Diagnostics.Debug.WriteLine($"==============================");
+
+                OnPropertyChanged(); // Notificar que CurrentQuestion cambió
             }
         }
 
